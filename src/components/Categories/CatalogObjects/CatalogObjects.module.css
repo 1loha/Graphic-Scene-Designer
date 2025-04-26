@@ -1,0 +1,32 @@
+.catalogObjects {
+    color: white;
+}
+
+.button {
+    padding-left: 20px;
+    width: 100px;
+    border: 0;
+    background-color: blue;
+    color: white;
+    cursor: pointer;
+    outline: 0;
+    font-size: 20px;
+}
+
+.dropdown {
+
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+li {
+    padding: 8px 12px;
+}
+
+li:hover {
+    background-color: rgba(0, 0, 0, 0.14);
+    cursor: pointer;
+}
