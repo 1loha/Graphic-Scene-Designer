@@ -3,11 +3,11 @@ import s from './Navbar.module.css';
 
 const Navbar = () => {
     return (
-        <div className={s.navbar}>
+        <nav className={s.navbar}>
             <span>Help</span>
             <span>Profile</span>
             <span>Settings</span>
-        </div>
+        </nav>
     )
 }
 

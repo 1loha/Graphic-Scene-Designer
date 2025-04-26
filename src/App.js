@@ -1,4 +1,4 @@
-import s from './App.css';
+import s from './App.module.css';
 import Header from "./components/Header/Header";
 import CatalogCategory from "./components/CatalogCategory/CatalogCategory";
 import Scene from "./components/Scene/Scene";

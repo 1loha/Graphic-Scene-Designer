@@ -5,7 +5,7 @@ import Navbar from "./Navbar/Navbar";
 const Header = () => {
     return (
         <header className={s.header}>
-            <img src="../images/plan_white.png" alt=" logo "/>
+            <img src="../images/plan_white.png" alt="logo"/>
             <span>3D Planer</span>
             <Navbar />
         </header>
