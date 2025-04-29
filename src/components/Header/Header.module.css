@@ -2,8 +2,10 @@
     grid-area: h;
     background-color: cornflowerblue;
     color: white;
+    display: flex;
+    align-items: center;
 }
 
 .header img {
-    width: 70px;
+    /*width: 70px;*/
 }

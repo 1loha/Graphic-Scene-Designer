@@ -1,3 +1,14 @@
 .navbar {
+    margin-left: auto;
+}
 
+.navbar ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 20px;
+}
+.navbar img {
+    width: 70px;
 }
