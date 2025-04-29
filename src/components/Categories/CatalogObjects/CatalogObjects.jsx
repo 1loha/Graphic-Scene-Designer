@@ -10,9 +10,13 @@ const CatalogObjects = (props) => {
 
     return (
         <div className={s.catalogObjects}>
-            <button className={s.button} type="button" onClick={handleDropdownClick}>
-                {props.name}
-                <img src={downArrow} alt=">"/>
+            <button type="button" onClick={handleDropdownClick}>
+                <span className={s.buttonText}>
+                    {props.name}
+                </span>
+                <span className={s.iconContainer}>
+                    <img className={s.arrowIcon} src={dropdownState.open ? rightArrow : downArrow} alt=">"/>
+                </span>
             </button>
             {dropdownState.open && <DropdownObjects />}
         </div>
