@@ -2,9 +2,10 @@
     margin: 0 auto;
     display: grid;
     width: auto;
+    height: 100vh;
     grid-template-areas:
     "h h h"
     "c s p";
-    grid-template-rows: 100px auto;
+    grid-template-rows: 100px 1fr;
     grid-template-columns: 1fr 5fr 1fr;
 }
