@@ -1,16 +1,27 @@
 .catalogObjects {
     color: white;
+    width: 100%;
 }
 
 .button {
-    padding-left: 20px;
-    width: 100px;
+    width: 100%;
+    padding-top: 10px;
+    padding-left: 10%;
     border: 0;
     background-color: blue;
     color: white;
     cursor: pointer;
     outline: 0;
-    font-size: 20px;
+    font-size: 30px;
+    display: inline-flex;
+
+}
+.button:hover {
+    background-color: rgba(0, 0, 0, 0.14);
+}
+.button img {
+    width: 40px;
+    /*margin-right: 20px;*/
 }
 
 .dropdown {
@@ -22,6 +33,7 @@ ul {
     padding: 0;
     margin: 0;
 }
+
 li {
     padding: 8px 12px;
 }

@@ -6,7 +6,7 @@ import logo from '../images/plan_white.png'
 const Header = () => {
     return (
         <header className={s.header}>
-            <img src={logo} alt="logo"/>
+            <img className={s.logo} src={logo} alt="logo"/>
             <span>3D Planer</span>
             <Navbar />
         </header>
