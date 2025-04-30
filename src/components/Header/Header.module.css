@@ -1,9 +1,11 @@
 .header {
     grid-area: h;
-    background-color: cornflowerblue;
+    background-color: blue;
     color: white;
     display: flex;
     align-items: center;
+    border: 0 solid aquamarine;
+    border-bottom-width: 1px;
 }
 
 .header .logo {
