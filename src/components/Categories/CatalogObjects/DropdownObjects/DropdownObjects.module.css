@@ -1,18 +1,20 @@
 .dropdownObjects {
-
 }
 
-ul {
+.dropdownObjects ul {
     list-style: none;
-    padding: 0;
+    padding: 8px;
     margin: 0;
 }
 
-li {
-    padding: 8px 12px;
+.dropdownObjects li:hover {
+    /*cursor: pointer;*/
 }
 
-li:hover {
-    background-color: rgba(0, 0, 0, 0.14);
-    cursor: pointer;
+.dropdownObjects button {
+    /*width: 100%;*/
+    /*text-align: left;*/
+    /*background: none;*/
+    /*border: none;*/
+    /*cursor: pointer;*/
 }

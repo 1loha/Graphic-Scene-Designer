@@ -1,8 +1,8 @@
 .catalogCategory {
+    user-select: none;
     grid-area: c;
     background: blue;
     display: flex;
     flex-direction: column;
-    /*gap: 10px;*/
     width: 100%;
 }

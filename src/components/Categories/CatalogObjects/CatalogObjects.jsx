@@ -4,7 +4,7 @@ import downArrow from './../../images/down_white.png';
 import rightArrow from './../../images/right_white.png';
 import DropdownObjects from "./DropdownObjects/DropdownObjects";
 
-const CatalogObjects = (props) => {
+const CatalogObjects = ({ nameCategory, onAddModel }) => {
     const [dropdownState, setDropdownState] = useState({ open: false });
     const handleDropdownClick = ()=> setDropdownState({ open: !dropdownState.open });
 
@@ -12,13 +12,13 @@ const CatalogObjects = (props) => {
         <div className={s.catalogObjects}>
             <button type="button" onClick={handleDropdownClick}>
                 <span className={s.buttonText}>
-                    {props.name}
+                    {nameCategory}
                 </span>
                 <span className={s.iconContainer}>
                     <img className={s.arrowIcon} src={dropdownState.open ? rightArrow : downArrow} alt=">"/>
                 </span>
             </button>
-            {dropdownState.open && <DropdownObjects />}
+            {dropdownState.open && <DropdownObjects onAddModel={onAddModel} />}
         </div>
     )
 }
