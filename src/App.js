@@ -7,17 +7,36 @@ import s from './App.module.css';
 
 const App = () => {
     const [sceneModels, setSceneModels] = useState([]);
-    const random = Math.random() * 4 - 2;
-    const handleAddModel = (path) => {
-        const newPosition = [random, 0, random];
+    const [selectedModel, setSelectedModel] = useState(null);
 
-        setSceneModels([...sceneModels, { path, position: newPosition, scale: 0.5 }]);
+    const handleAddModel = (path) => {
+        setSelectedModel(path);
     };
+
+    const handlePlaceModel = (position) => {
+        if (selectedModel) {
+            setSceneModels([...sceneModels, {
+                path: selectedModel,
+                position,
+                scale: 0.5
+            }]);
+        }
+    };
+
+    const handleCancelSelection = () => {
+        setSelectedModel(null);
+    };
+
     return (
         <div className={s.appWrapper}>
             <Header />
             <Categories onAddModel={handleAddModel}/>
-            <Scene models={sceneModels}/>
+            <Scene
+                models={sceneModels}
+                selectedModel={selectedModel}
+                onPlaceModel={handlePlaceModel}
+                onCancelSelection={handleCancelSelection}
+            />
             <Properties />
         </div>
     );

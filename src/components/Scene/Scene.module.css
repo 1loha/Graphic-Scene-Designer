@@ -1,14 +1,14 @@
 .scene {
     grid-area: s;
     background-color: whitesmoke;
-
-    /*width: 100%;*/
-    /*height: 100%;*/
-    /*position: relative;*/
 }
 
 .scene canvas {
-    cursor: grab;
+    cursor: default;
+}
+
+.scene.model-placing canvas {
+    cursor: crosshair;
 }
 
 .scene canvas:active {
