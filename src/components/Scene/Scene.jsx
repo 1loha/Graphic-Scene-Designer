@@ -1,94 +1,65 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
-import { OrbitControls, Grid } from '@react-three/drei';
-import Model from '../Model/Model';
-import s from './Scene.module.css';
-import { Raycaster, Vector2, Mesh, PlaneGeometry, MeshBasicMaterial } from 'three';
+import React, { useRef, useCallback } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, useGLTF } from '@react-three/drei';
+import { easing } from 'maath';
+import { MathUtils } from 'three';
+import { Grid, useDrag } from './Grid';
 
-const SceneContent = ({ models, selectedModel, onPlaceModel, onCancelSelection }) => {
-    const { gl, camera, size } = useThree();
-    const [groundPlane, setGroundPlane] = useState(null);
+function DraggableModel({
+                            position = [0, 0, 0],
+                            gridScale = 20,
+                            gridDivisions = 40,
+                            modelPath,
+                            ...props
+                        }) {
+    const ref = useRef();
+    const pos = useRef(position);
+    const { scene } = useGLTF(modelPath);
+    const baseSize = 0.5;
 
-    useEffect(() => {
-        // Создаем и сохраняем плоскость в состоянии
-        const plane = new Mesh(
-            new PlaneGeometry(1000, 1000),
-            new MeshBasicMaterial({ visible: false })
-        );
-        plane.rotation.x = -Math.PI / 2;
-        plane.position.y = 0;
-        setGroundPlane(plane);
-    }, []);
+    const onDrag = useCallback(({ x, z }) => {
+        const cellSize = gridScale / gridDivisions;
+        const halfGrid = gridScale / 2;
+        const minBound = -halfGrid + baseSize;
+        const maxBound = halfGrid - baseSize;
 
-    useEffect(() => {
-        if (!selectedModel || !groundPlane) return;
+        pos.current = [
+            MathUtils.clamp(
+                Math.round(x / cellSize) * cellSize + cellSize/2,
+                minBound + cellSize/2,
+                maxBound - cellSize/2
+            ),
+            position[1],
+            MathUtils.clamp(
+                Math.round(z / cellSize) * cellSize + cellSize/2,
+                minBound + cellSize/2,
+                maxBound - cellSize/2
+            )
+        ];
+    }, [gridScale, gridDivisions, position, baseSize]);
 
-        const handleClick = (event) => {
-            if (event.button === 0) {
-                const raycaster = new Raycaster();
-                const mouse = new Vector2();
+    const [events] = useDrag(onDrag);
 
-                const rect = gl.domElement.getBoundingClientRect();
-                mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-                mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    useFrame((state, delta) => {
+        easing.damp3(ref.current.position, pos.current, 0.1, delta);
+    });
 
-                raycaster.setFromCamera(mouse, camera);
-                const intersects = raycaster.intersectObject(groundPlane);
+    return <primitive ref={ref} object={scene} {...events} {...props} />;
+}
 
-                if (intersects.length > 0) {
-                    const pos = intersects[0].point;
-                    onPlaceModel([pos.x, pos.y, pos.z]);
-                }
-            } else if (event.button === 2) {
-                onCancelSelection();
-            }
-        };
-
-        window.addEventListener('mousedown', handleClick);
-        return () => window.removeEventListener('mousedown', handleClick);
-    }, [selectedModel, gl, camera, onPlaceModel, onCancelSelection, groundPlane]);
+const Scene = () => {
+    const gridScale = 20;
+    const gridDivisions = 40;
 
     return (
-        <>
-            <ambientLight intensity={.5} />
-            <directionalLight position={[-2, 2, -2]} intensity={0.8} />
-            <OrbitControls/>
-            <Grid
-                infiniteGrid
-                cellSize={0.2}
-                cellThickness={.6}
-                cellColor="#bababa"
-                sectionSize={5}
-                sectionThickness={.5}
-                sectionColor="#777777"
-                fadeDistance={30}
-                fadeStrength={0}
-            />
-            {groundPlane && <primitive object={groundPlane} />}
-            {models.map((model, index) => (
-                <Model
-                    key={index}
-                    path={model.path}
-                    scale={model.scale}
-                    position={model.position}
-                />
-            ))}
-        </>
-    );
-};
-
-const Scene = ({ models, selectedModel, onPlaceModel, onCancelSelection }) => {
-    return (
-        <Canvas
-            className={`${s.scene} ${selectedModel ? s.modelPlacing : ''}`}
-            camera={{fov: 80, position: [3, 5, 1]}}
-        >
-            <SceneContent
-                models={models}
-                selectedModel={selectedModel}
-                onPlaceModel={onPlaceModel}
-                onCancelSelection={onCancelSelection}
-            />
+        <Canvas orthographic camera={{ position: [5, 5, 5], zoom: 50 }}>
+            <ambientLight intensity={0.5 * Math.PI} />
+            <pointLight position={[10, 10, -5]} />
+            <Grid gridScale={gridScale} gridDivisions={gridDivisions}>
+                <DraggableModel modelPath="/steve/source/model.gltf" />
+                <DraggableModel modelPath="/shameless_loona_pose/scene.gltf" />
+            </Grid>
+            <OrbitControls makeDefault />
         </Canvas>
     );
 };
