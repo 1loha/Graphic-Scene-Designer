@@ -5,13 +5,7 @@ import { easing } from 'maath';
 import { MathUtils } from 'three';
 import { Grid, useDrag } from './Grid';
 
-function DraggableModel({
-                            position = [0, 0, 0],
-                            gridScale = 20,
-                            gridDivisions = 40,
-                            modelPath,
-                            ...props
-                        }) {
+function DraggableModel({position = [0, 0, 0], gridScale = 20, gridDivisions = 40, modelPath, ...props}) {
     const ref = useRef();
     const pos = useRef(position);
     const { scene } = useGLTF(modelPath);
@@ -52,7 +46,7 @@ const Scene = () => {
     const gridDivisions = 40;
 
     return (
-        <Canvas orthographic camera={{ position: [5, 5, 5], zoom: 50 }}>
+        <Canvas orthographic camera={{ position: [5, 5, 5], zoom: 50, near: 0.1 }}>
             <ambientLight intensity={0.5 * Math.PI} />
             <pointLight position={[10, 10, -5]} />
             <Grid gridScale={gridScale} gridDivisions={gridDivisions}>

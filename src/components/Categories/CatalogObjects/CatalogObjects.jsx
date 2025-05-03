@@ -4,10 +4,8 @@ import downArrow from './../../images/down_white.png';
 import rightArrow from './../../images/right_white.png';
 import DropdownObjects from "./DropdownObjects/DropdownObjects";
 
-const CatalogObjects = ({ nameCategory, onAddModel }) => {
-    const [dropdownState, setDropdownState] = useState({ open: false });
-    const handleDropdownClick = ()=> setDropdownState({ open: !dropdownState.open });
-
+const CatalogObjects = ({ nameCategory, isOpen, onToggle }) => {
+    const handleDropdownClick = () => onToggle(nameCategory);
     return (
         <div className={s.catalogObjects}>
             <button type="button" onClick={handleDropdownClick}>
@@ -15,10 +13,10 @@ const CatalogObjects = ({ nameCategory, onAddModel }) => {
                     {nameCategory}
                 </span>
                 <span className={s.iconContainer}>
-                    <img className={s.arrowIcon} src={dropdownState.open ? rightArrow : downArrow} alt=">"/>
+                    <img className={s.arrowIcon} src={isOpen ? rightArrow : downArrow} alt=">"/>
                 </span>
             </button>
-            {dropdownState.open && <DropdownObjects onAddModel={onAddModel} />}
+            {isOpen && <DropdownObjects />}
         </div>
     )
 }
