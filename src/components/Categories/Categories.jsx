@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import s from './Categories.module.css';
 import CatalogObjects from './CatalogObjects/CatalogObjects';
 
-const Categories = () => {
+const Categories = ({ onAddModel }) => {
     const [activeCategory, setActiveCategory] = useState(null);
 
     const handleCategoryToggle = (name) => {
@@ -14,16 +14,19 @@ const Categories = () => {
                 nameCategory="Мебель"
                 isOpen={activeCategory === "Мебель"}
                 onToggle={handleCategoryToggle}
+                onAddModel={onAddModel}
             />
             <CatalogObjects
                 nameCategory="Освещение"
                 isOpen={activeCategory === "Освещение"}
                 onToggle={handleCategoryToggle}
+                onAddModel={onAddModel}
             />
             <CatalogObjects
                 nameCategory="Сантехника"
                 isOpen={activeCategory === "Сантехника"}
                 onToggle={handleCategoryToggle}
+                onAddModel={onAddModel}
             />
         </div>
     )

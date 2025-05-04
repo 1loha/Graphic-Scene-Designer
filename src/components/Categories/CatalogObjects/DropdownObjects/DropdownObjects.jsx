@@ -7,8 +7,8 @@ const DropdownObjects = ({ onAddModel }) => {
         <div className={s.dropdownObjects}>
             {/*список объектов*/}
             <ul>
-                <li><button>steve</button></li>
-                <li><button>loona</button></li>
+                <li><button onClick={() => onAddModel('steve')}>steve</button></li>
+                <li><button onClick={() => onAddModel('loona')}>loona</button></li>
                 <li><button>Item 3</button></li>
                 <li><button>Item 4</button></li>
             </ul>
