@@ -1,0 +1,11 @@
+Model Information:
+* title:	Shameless loona pose
+* source:	https://sketchfab.com/3d-models/shameless-loona-pose-87dd1993e42241f8b63052d0b822c4ca
+* author:	Gatomoderno (https://sketchfab.com/kevinmachorro04)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Shameless loona pose" (https://sketchfab.com/3d-models/shameless-loona-pose-87dd1993e42241f8b63052d0b822c4ca) by Gatomoderno (https://sketchfab.com/kevinmachorro04) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
