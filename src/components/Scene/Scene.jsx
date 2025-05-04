@@ -5,7 +5,11 @@ import { easing } from 'maath';
 import { MathUtils } from 'three';
 import { Grid, useDrag } from './Grid';
 
-function DraggableModel({position = [0, 0, 0], gridScale = 20, gridDivisions = 40, modelPath, ...props}) {
+function DraggableModel({position = [0, 0, 0],
+                            gridScale = 20,
+                            gridDivisions = 40,
+                            modelPath,
+                            ...props}) {
     const ref = useRef();
     const pos = useRef(position);
     const { scene } = useGLTF(modelPath);
@@ -18,12 +22,15 @@ function DraggableModel({position = [0, 0, 0], gridScale = 20, gridDivisions = 4
         const maxBound = halfGrid - baseSize;
 
         pos.current = [
+            // X-координата с привязкой к сетке и ограничениями
             MathUtils.clamp(
                 Math.round(x / cellSize) * cellSize + cellSize/2,
                 minBound + cellSize/2,
                 maxBound - cellSize/2
             ),
+            // Y не изменяется
             position[1],
+            // Z-координата с привязкой к сетке и ограничениями
             MathUtils.clamp(
                 Math.round(z / cellSize) * cellSize + cellSize/2,
                 minBound + cellSize/2,
@@ -34,6 +41,7 @@ function DraggableModel({position = [0, 0, 0], gridScale = 20, gridDivisions = 4
 
     const [events] = useDrag(onDrag);
 
+    // обновляет позицию модели
     useFrame((state, delta) => {
         easing.damp3(ref.current.position, pos.current, 0.1, delta);
     });
@@ -46,7 +54,7 @@ const Scene = () => {
     const gridDivisions = 40;
 
     return (
-        <Canvas orthographic camera={{ position: [5, 5, 5], zoom: 50, near: 0.1 }}>
+        <Canvas orthographic camera={{ position: [10, 10, 10], zoom: 50, near: 0.1 }}>
             <ambientLight intensity={0.5 * Math.PI} />
             <pointLight position={[10, 10, -5]} />
             <Grid gridScale={gridScale} gridDivisions={gridDivisions}>

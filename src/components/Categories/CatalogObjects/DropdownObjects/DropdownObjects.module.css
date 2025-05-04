@@ -11,10 +11,7 @@
     /*cursor: pointer;*/
 }
 
-.dropdownObjects button {
-    /*width: 100%;*/
-    /*text-align: left;*/
-    /*background: none;*/
-    /*border: none;*/
-    /*cursor: pointer;*/
+.dropdownObjects ul li button {
+    font-size: 24px;
+
 }

@@ -8,8 +8,11 @@ const Navbar = () => {
     return (
         <nav className={s.navbar}>
             <ul>
+                {/*настройки*/}
                 <li><img src={settings} alt="settings"/></li>
+                {/*справочник*/}
                 <li><img src={support} alt="support"/></li>
+                {/*профиль пользователя*/}
                 <li><img src={userProfile} alt="userProfile"/></li>
             </ul>
         </nav>

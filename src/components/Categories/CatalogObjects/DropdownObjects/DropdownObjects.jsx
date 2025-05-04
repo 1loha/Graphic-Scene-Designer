@@ -5,19 +5,12 @@ const DropdownObjects = ({ onAddModel }) => {
 
     return (
         <div className={s.dropdownObjects}>
+            {/*список объектов*/}
             <ul>
-                <li>
-                    <button type="button" >
-                        steve
-                    </button>
-                </li>
-                <li>
-                    <button type="button" >
-                        loona
-                    </button>
-                </li>
-                <li>Item 3</li>
-                <li>Item 4</li>
+                <li><button>steve</button></li>
+                <li><button>loona</button></li>
+                <li><button>Item 3</button></li>
+                <li><button>Item 4</button></li>
             </ul>
         </div>
     )
