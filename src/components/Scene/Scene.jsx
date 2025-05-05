@@ -2,7 +2,7 @@ import React from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Grid } from './Grid';
-import Model from "./Model";
+import DraggableModel from "./DraggableModel";
 
 const modelPaths = {
     steve: '/steve/source/model.gltf',
@@ -19,7 +19,7 @@ const Scene = ({ models }) => {
             <pointLight position={[10, 10, -5]} />
             <Grid gridScale={gridScale} gridDivisions={gridDivisions}>
                 {models.map(model => (
-                    <Model
+                    <DraggableModel
                         key={model.id}
                         modelPath={modelPaths[model.type]}
                         position={model.position}

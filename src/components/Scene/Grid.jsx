@@ -19,7 +19,7 @@ function useDrag(onDrag) {
         activatePlane(true)
         if (controls) controls.enabled = false
         e.target.setPointerCapture(e.pointerId)
-    }, [controls])
+    }, [activatePlane, controls])
 
     // окончание перетаскивания
     const up = useCallback((e) => {
@@ -27,7 +27,7 @@ function useDrag(onDrag) {
         activatePlane(false)
         if (controls) controls.enabled = true
         e.target.releasePointerCapture(e.pointerId)
-    }, [controls])
+    }, [activatePlane, controls])
 
     // обработка перемещения
     const move = useCallback((e) => {

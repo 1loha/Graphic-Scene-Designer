@@ -4,7 +4,7 @@ import downArrow from './../../images/down_white.png';
 import rightArrow from './../../images/right_white.png';
 import DropdownObjects from "./DropdownObjects/DropdownObjects";
 
-const CatalogObjects = ({ nameCategory, isOpen, onToggle, onAddModel }) => {
+const CatalogObjects = ({ nameCategory, isOpen, onToggle, addModel }) => {
     const handleDropdownClick = () => onToggle(nameCategory);
     return (
         <div className={s.catalogObjects}>
@@ -16,7 +16,7 @@ const CatalogObjects = ({ nameCategory, isOpen, onToggle, onAddModel }) => {
                 </span>
             </button>
             {/*если на список нажали, то открыть список*/}
-            {isOpen && <DropdownObjects onAddModel={onAddModel}/>}
+            {isOpen && <DropdownObjects addModel={addModel}/>}
         </div>
     )
 }
