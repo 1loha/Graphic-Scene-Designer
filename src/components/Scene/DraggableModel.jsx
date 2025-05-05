@@ -5,11 +5,7 @@ import {useDrag} from "./Grid";
 import {useFrame} from "@react-three/fiber";
 import {easing} from "maath";
 
-export default function Model({modelPath,
-                                  position = [0, 0, 0],
-                                  rotation = [0, 0, 0],
-                                  gridScale = 20,
-                                  gridDivisions = 40 }) {
+export default function Model({modelPath, position = [0, 0, 0], rotation = [0, 0, 0], gridScale = 20, gridDivisions = 40, isSelected, onClick, onDrag }) {
     const ref = useRef();
     const pos = useRef([...position]); // Создаем копию позиции
     const rot = useRef([...rotation]);
@@ -17,32 +13,30 @@ export default function Model({modelPath,
     const baseSize = 0.5;
 
     // перемещение
-    const onDrag = useCallback(({ x, z }) => {
+    const handleDrag = useCallback(({ x, z }) => {
         const cellSize = gridScale / gridDivisions;
         const halfGrid = gridScale / 2;
         const minBound = -halfGrid + baseSize;
         const maxBound = halfGrid - baseSize;
 
-        pos.current = [
-            // X-координата с привязкой к сетке и ограничениями
+        const newPosition = [
             MathUtils.clamp(
-                Math.round(x / cellSize) * cellSize + cellSize/2,
-                minBound + cellSize/2,
-                maxBound - cellSize/2
+                Math.round(x / cellSize) * cellSize + cellSize / 2,
+                minBound + cellSize / 2,
+                maxBound - cellSize / 2
             ),
-            // Y не изменяется
             position[1],
-            // Z-координата с привязкой к сетке и ограничениями
             MathUtils.clamp(
-                Math.round(z / cellSize) * cellSize + cellSize/2,
-                minBound + cellSize/2,
-                maxBound - cellSize/2
+                Math.round(z / cellSize) * cellSize + cellSize / 2,
+                minBound + cellSize / 2,
+                maxBound - cellSize / 2
             )
         ];
+        pos.current = newPosition;
+        onDrag(newPosition);
+    }, [gridScale, gridDivisions, position, baseSize, onDrag]);
 
-    }, [gridScale, gridDivisions, position, baseSize]);
-
-    const [events] = useDrag(onDrag);
+    const [events] = useDrag(handleDrag);
 
     // обновляет позицию модели
     useFrame((state, delta) => {
@@ -56,6 +50,7 @@ export default function Model({modelPath,
                {...events}
                position={position}
                rotation={rotation}
+               onClick={onClick}
         />
     );
 

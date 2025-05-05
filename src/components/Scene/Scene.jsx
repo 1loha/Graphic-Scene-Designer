@@ -9,7 +9,7 @@ const modelPaths = {
     loona: '/shameless_loona_pose/scene.gltf'
 }
 
-const Scene = ({ models }) => {
+const Scene = ({ models, selectedModelId, onModelSelect, onModelUpdate }) => {
     const gridScale = 20;
     const gridDivisions = 40;
 
@@ -24,6 +24,9 @@ const Scene = ({ models }) => {
                         modelPath={modelPaths[model.type]}
                         position={model.position}
                         rotation={model.rotation}
+                        isSelected={model.id === selectedModelId}
+                        onClick={() => onModelSelect(model.id)}
+                        onDrag={(newPosition) => onModelUpdate(model.id, { position: newPosition })}
                     />
                 ))}
             </Grid>
