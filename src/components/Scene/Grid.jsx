@@ -42,12 +42,13 @@ function useDrag(onDrag) {
     }, active]
 }
 
+// создание сетки
 function Grid({ children, gridScale, gridDivisions, ...props }) {
-    //  ссылки на DOM-элементы сетки и плоскости
+    // ссылки на DOM-элементы сетки и плоскости
     const grid = useRef()
     const plane = useRef()
 
-    //отслеживание состояния активности
+    // отслеживание состояния активности
     const [_, activate] = useState(false)
 
     // создает сетку

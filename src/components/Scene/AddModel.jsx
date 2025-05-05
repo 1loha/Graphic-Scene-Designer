@@ -7,7 +7,8 @@ export const AddModel = () => {
             ...prevModels, {
                 type,
                 id: Date.now(),
-                position: [0, 0, 0]
+                position: [0, 0, 0],
+                rotation: [0, 0, 0],
             }
         ]);
     };

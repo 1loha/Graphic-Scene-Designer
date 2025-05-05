@@ -23,6 +23,7 @@ const Scene = ({ models }) => {
                         key={model.id}
                         modelPath={modelPaths[model.type]}
                         position={model.position}
+                        rotation={model.rotation}
                     />
                 ))}
             </Grid>

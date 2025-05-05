@@ -5,12 +5,18 @@ import {useDrag} from "./Grid";
 import {useFrame} from "@react-three/fiber";
 import {easing} from "maath";
 
-export default function Model({ modelPath, position = [0, 0, 0], gridScale = 20, gridDivisions = 40 }) {
+export default function Model({modelPath,
+                                  position = [0, 0, 0],
+                                  rotation = [0, 0, 0],
+                                  gridScale = 20,
+                                  gridDivisions = 40 }) {
     const ref = useRef();
     const pos = useRef([...position]); // Создаем копию позиции
+    const rot = useRef([...rotation]);
     const { scene } = useGLTF(modelPath);
     const baseSize = 0.5;
 
+    // перемещение
     const onDrag = useCallback(({ x, z }) => {
         const cellSize = gridScale / gridDivisions;
         const halfGrid = gridScale / 2;
@@ -41,10 +47,16 @@ export default function Model({ modelPath, position = [0, 0, 0], gridScale = 20,
     // обновляет позицию модели
     useFrame((state, delta) => {
         easing.damp3(ref.current.position, pos.current, 0.1, delta);
+        easing.damp3(ref.current.rotation, rot.current, 0.1, delta);
     });
 
     return (
-        <Clone ref={ref} object={scene} {...events} position={position} />
+        <Clone ref={ref}
+               object={scene}
+               {...events}
+               position={position}
+               rotation={rotation}
+        />
     );
 
 }
