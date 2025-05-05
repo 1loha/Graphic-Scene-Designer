@@ -4,12 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import { Grid } from './Grid';
 import DraggableModel from "./DraggableModel";
 
-const modelPaths = {
-    steve: '/steve/source/model.gltf',
-    loona: '/shameless_loona_pose/scene.gltf'
-}
-
-const Scene = ({ models, selectedModelId, onModelSelect, onModelUpdate }) => {
+const Scene = ({ objects, models, selectedModelId, onModelSelect, onModelUpdate }) => {
     const gridScale = 20;
     const gridDivisions = 40;
 
@@ -21,12 +16,14 @@ const Scene = ({ models, selectedModelId, onModelSelect, onModelUpdate }) => {
                 {models.map(model => (
                     <DraggableModel
                         key={model.id}
-                        modelPath={modelPaths[model.type]}
+                        modelPath={objects[model.type].path}
+                        scale={model.scale}
                         position={model.position}
                         rotation={model.rotation}
                         isSelected={model.id === selectedModelId}
                         onClick={() => onModelSelect(model.id)}
                         onDrag={(newPosition) => onModelUpdate(model.id, { position: newPosition })}
+                        // onScaleChange={(newScale) => onModelUpdate(model.id, { scale: newScale })}
                     />
                 ))}
             </Grid>

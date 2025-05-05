@@ -6,13 +6,31 @@ import Properties from "./components/Properties/Properties";
 import s from './App.module.css';
 import { AddModel } from "./components/Scene/AddModel";
 
+const objects = {
+    steve: {
+        path: '/steve/source/model.gltf',
+        scale: [1,1,1],},
+    loona: {
+        path: '/shameless_loona_pose/scene.gltf',
+        scale: [0.5,0.5,0.5],},
+    chair: {
+        path: '/chair/scene.gltf',
+        scale: [1,1,1],},
+    table: {
+        path: '/table/scene.gltf',
+        scale: [1,1,1],},
+    sofa: {
+        path: '/sofa/scene.gltf',
+        scale: [0.05,0.05,0.05],},
+}
+
 const App = () => {
-    const { models, addModel, updateModel } = AddModel(); // Добавляем updateModel
+    const { models, addModel, updateModel } = AddModel({objects}); // Добавляем updateModel
     const [selectedModelId, setSelectedModelId] = useState(null);
 
     // Обработчик обновления модели
     const handleModelUpdate = (id, updates) => {
-        updateModel(id, updates); // Используем updateModel из AddModel
+        updateModel(id, updates);
     };
 
     const selectedModel = models.find(model => model.id === selectedModelId);
@@ -22,6 +40,7 @@ const App = () => {
             <Header />
             <Categories addModel={addModel} />
             <Scene
+                objects={objects}
                 models={models}
                 selectedModelId={selectedModelId}
                 onModelSelect={setSelectedModelId}
@@ -40,6 +59,12 @@ const App = () => {
                     const newRotation = [...selectedModel.rotation];
                     newRotation[axis] = value;
                     handleModelUpdate(selectedModelId, { rotation: newRotation });
+                }}
+                onScaleChange={(axis, value) => {
+                    if (!selectedModel) return;
+                    const newScale = [...selectedModel.scale];
+                    newScale[axis] = value;
+                    handleModelUpdate(selectedModelId, { scale: newScale });
                 }}
             />
         </div>

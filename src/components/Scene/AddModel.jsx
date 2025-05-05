@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const AddModel = () => {
+export const AddModel = ( { objects } ) => {
     const [models, setModels] = useState([]);
 
     const addModel = (type) => {
@@ -11,6 +11,7 @@ export const AddModel = () => {
                 id: Date.now(),
                 position: [0, 0, 0],
                 rotation: [0, 0, 0],
+                scale: objects[type].scale,
             }
         ]);
     };

@@ -1,16 +1,30 @@
 import {Clone, useGLTF} from "@react-three/drei";
-import React, {useCallback, useRef} from "react";
+import React, {useCallback, useEffect, useRef} from "react";
 import {MathUtils} from "three";
 import {useDrag} from "./Grid";
 import {useFrame} from "@react-three/fiber";
 import {easing} from "maath";
 
-export default function Model({modelPath, position = [0, 0, 0], rotation = [0, 0, 0], gridScale = 20, gridDivisions = 40, isSelected, onClick, onDrag }) {
+export default function DraggableModel({modelPath,
+                                  position = [0, 0, 0],
+                                  rotation = [0, 0, 0],
+                                  scale = [1, 1, 1],
+                                  gridScale = 20,
+                                  gridDivisions = 40,
+                                  onClick,
+                                  onDrag,
+                                  // onScaleChange,
+                                       }) {
     const ref = useRef();
     const pos = useRef([...position]); // Создаем копию позиции
     const rot = useRef([...rotation]);
+    const scl = useRef([...scale]);
     const { scene } = useGLTF(modelPath);
     const baseSize = 0.5;
+
+    useEffect(() => {
+        scl.current = [...scale];
+    }, [scale]);
 
     // перемещение
     const handleDrag = useCallback(({ x, z }) => {
@@ -32,6 +46,7 @@ export default function Model({modelPath, position = [0, 0, 0], rotation = [0, 0
                 maxBound - cellSize / 2
             )
         ];
+
         pos.current = newPosition;
         onDrag(newPosition);
     }, [gridScale, gridDivisions, position, baseSize, onDrag]);
@@ -42,6 +57,7 @@ export default function Model({modelPath, position = [0, 0, 0], rotation = [0, 0
     useFrame((state, delta) => {
         easing.damp3(ref.current.position, pos.current, 0.1, delta);
         easing.damp3(ref.current.rotation, rot.current, 0.1, delta);
+        easing.damp3(ref.current.scale, scl.current, 0.1, delta);
     });
 
     return (
@@ -50,6 +66,7 @@ export default function Model({modelPath, position = [0, 0, 0], rotation = [0, 0
                {...events}
                position={position}
                rotation={rotation}
+               scale={scale}
                onClick={onClick}
         />
     );

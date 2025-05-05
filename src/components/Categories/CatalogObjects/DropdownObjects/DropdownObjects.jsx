@@ -9,8 +9,9 @@ const DropdownObjects = ({ addModel }) => {
             <ul>
                 <li><button onClick={() => addModel('steve')}>steve</button></li>
                 <li><button onClick={() => addModel('loona')}>loona</button></li>
-                <li><button>Item 3</button></li>
-                <li><button>Item 4</button></li>
+                <li><button onClick={() => addModel('chair')}>chair</button></li>
+                <li><button onClick={() => addModel('table')}>table</button></li>
+                <li><button onClick={() => addModel('sofa')}>sofa</button></li>
             </ul>
         </div>
     )
