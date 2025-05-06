@@ -55,8 +55,12 @@ function Grid({ children, gridScale, gridDivisions, ...props }) {
     return (
         <group {...props}>
             <group scale={gridScale}>
-                <gridHelper ref={grid} args={[1, gridDivisions, '#888', '#bbb']} />
-                <mesh ref={plane} rotation-x={-Math.PI / 2}>
+                <gridHelper ref={grid}
+                            args={[1, gridDivisions, '#888', '#bbb']}
+                            userData={{ isGrid: true }}/>
+                <mesh ref={plane}
+                      rotation-x={-Math.PI / 2}
+                      userData={{ isGrid: true }}>
                     <planeGeometry />
                     <meshStandardMaterial visible={false} />
                 </mesh>

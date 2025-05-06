@@ -6,17 +6,16 @@ import {useFrame} from "@react-three/fiber";
 import {easing} from "maath";
 
 export default function DraggableModel({modelPath,
-                                  position = [0, 0, 0],
-                                  rotation = [0, 0, 0],
-                                  scale = [1, 1, 1],
-                                  gridScale = 20,
-                                  gridDivisions = 40,
-                                  onClick,
-                                  onDrag,
-                                  // onScaleChange,
-                                       }) {
+                                           position = [0, 0, 0],
+                                           rotation = [0, 0, 0],
+                                           scale = [1, 1, 1],
+                                           gridScale = 20,
+                                           gridDivisions = 40,
+                                           isSelected,
+                                           onClick,
+                                           onDrag, }) {
     const ref = useRef();
-    const pos = useRef([...position]); // Создаем копию позиции
+    const pos = useRef([...position]);
     const rot = useRef([...rotation]);
     const scl = useRef([...scale]);
     const { scene } = useGLTF(modelPath);
@@ -25,6 +24,21 @@ export default function DraggableModel({modelPath,
     useEffect(() => {
         scl.current = [...scale];
     }, [scale]);
+
+    // Устанавливаем прозрачность для выделенного объекта
+    useEffect(() => {
+        if (ref.current) {
+            ref.current.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.transparent = true;
+                    child.material.opacity = isSelected ? 0.5 : 1.0;
+                    // if (!child.userData.originalMaterial) {
+                    //     child.userData.originalMaterial = child.material.clone();
+                    // }
+                }
+            });
+        }
+    }, [isSelected]);
 
     // перемещение
     const handleDrag = useCallback(({ x, z }) => {
@@ -58,6 +72,7 @@ export default function DraggableModel({modelPath,
         easing.damp3(ref.current.position, pos.current, 0.1, delta);
         easing.damp3(ref.current.rotation, rot.current, 0.1, delta);
         easing.damp3(ref.current.scale, scl.current, 0.1, delta);
+
     });
 
     return (
@@ -67,7 +82,10 @@ export default function DraggableModel({modelPath,
                position={position}
                rotation={rotation}
                scale={scale}
-               onClick={onClick}
+               onClick={(e) => {
+                   e.stopPropagation();
+                   onClick();
+               }}
         />
     );
 

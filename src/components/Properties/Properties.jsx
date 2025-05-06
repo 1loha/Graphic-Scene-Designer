@@ -1,11 +1,11 @@
 import React from 'react';
 import s from './Properties.module.css';
 
-const Properties = ({ selectedModel, onPositionChange, onRotationChange }) => {
+const Properties = ({ selectedModel, onPositionChange, onRotationChange, onScaleChange }) => {
     if (!selectedModel) {
         return (
             <div className={s.properties}>
-                Выберите объект для редактирования
+                Выберите объект
             </div>
         );
     }
@@ -13,24 +13,21 @@ const Properties = ({ selectedModel, onPositionChange, onRotationChange }) => {
         <div className={s.properties}>
             Перемещение
             <div className={s.position}>
-                <div>
-                    По оси X:
+                <div> По оси X:
                     <input
                         type="number"
                         value={selectedModel.position[0]}
                         onChange={(e) => onPositionChange(0, parseFloat(e.target.value))}
                     /> px
                 </div>
-                <div>
-                    По оси Y:
+                <div> По оси Y:
                     <input
                         type="number"
                         value={selectedModel.position[1]}
                         onChange={(e) => onPositionChange(1, parseFloat(e.target.value))}
                     /> px
                 </div>
-                <div>
-                    По оси Z:
+                <div> По оси Z:
                     <input
                         type="number"
                         value={selectedModel.position[2]}
