@@ -1,7 +1,7 @@
 import React from 'react';
 import s from './CatalogObjects.module.css';
-import downArrow from './../../images/down_white.png';
-import rightArrow from './../../images/right_white.png';
+import downArrow from '../../../images/down_white.png';
+import rightArrow from '../../../images/right_white.png';
 import DropdownObjects from "./DropdownObjects/DropdownObjects";
 
 const CatalogObjects = ({ nameCategory, isOpen, onToggle, addModel }) => {

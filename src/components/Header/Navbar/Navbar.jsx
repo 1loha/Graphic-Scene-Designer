@@ -1,8 +1,8 @@
 import React from 'react';
 import s from './Navbar.module.css';
-import settings from '../../images/settings_white.png'
-import support from '../../images/support_white.png'
-import userProfile from '../../images/user-profile_white.png'
+import settings from '../../../images/settings_white.png'
+import support from '../../../images/support_white.png'
+import userProfile from '../../../images/user-profile_white.png'
 
 const Navbar = () => {
     return (

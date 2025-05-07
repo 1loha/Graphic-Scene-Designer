@@ -1,7 +1,7 @@
 import React from 'react';
 import s from './Header.module.css';
 import Navbar from "./Navbar/Navbar";
-import logo from '../images/plan_white.png'
+import logo from '../../images/plan_white.png'
 
 const Header = () => {
     return (

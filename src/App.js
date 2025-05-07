@@ -8,19 +8,19 @@ import { AddModel } from "./components/Scene/AddModel";
 
 const objects = {
     steve: {
-        path: '/steve/source/model.gltf',
+        path: '/models/steve/source/model.gltf',
         scale: [1,1,1],},
     loona: {
-        path: '/shameless_loona_pose/scene.gltf',
+        path: '/models/shameless_loona_pose/scene.gltf',
         scale: [0.5,0.5,0.5],},
     chair: {
-        path: '/chair/scene.gltf',
+        path: '/models/chair/scene.gltf',
         scale: [1,1,1],},
     table: {
-        path: '/table/scene.gltf',
+        path: '/models/table/scene.gltf',
         scale: [1,1,1],},
     sofa: {
-        path: '/sofa/scene.gltf',
+        path: '/models/sofa/scene.gltf',
         scale: [0.05,0.05,0.05],},
 }
 
