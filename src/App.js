@@ -25,7 +25,7 @@ const objects = {
 }
 
 const App = () => {
-    const { models, addModel, updateModel } = AddModel({objects}); // Добавляем updateModel
+    const { models, addModel, updateModel } = AddModel({objects});
     const [selectedModelId, setSelectedModelId] = useState(null);
 
     // Обработчик обновления модели

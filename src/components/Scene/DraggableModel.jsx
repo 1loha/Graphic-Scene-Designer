@@ -1,9 +1,9 @@
-import {Clone, useGLTF} from "@react-three/drei";
-import React, {useCallback, useEffect, useMemo, useRef} from "react";
-import {MathUtils} from "three";
-import {useDrag} from "./Grid";
-import {useFrame} from "@react-three/fiber";
-import {easing} from "maath";
+import { Clone, useGLTF } from "@react-three/drei";
+import React, {useEffect, useMemo, useRef} from "react";
+import { MathUtils } from "three";
+import { useDrag } from "./Grid";
+import { useFrame } from "@react-three/fiber";
+import { easing } from "maath";
 
 export default function DraggableModel({modelPath,
                                            position = [0, 0, 0],
@@ -13,7 +13,9 @@ export default function DraggableModel({modelPath,
                                            gridDivisions = 40,
                                            isSelected,
                                            onClick,
-                                           onDrag,}) {
+                                           onDrag,
+                                           onRefReady,
+                                           onTransform}) {
     const ref = useRef();
     const pos = useRef([...position]);
     const rot = useRef([...rotation]);
@@ -26,10 +28,10 @@ export default function DraggableModel({modelPath,
         clone.traverse((child) => {
             if (child.isMesh) {
                 child.geometry = child.geometry.clone();
-                if (child.material) {
-                    child.material = child.material.clone();
-                    child.material.transparent = true; // для выделения
-                }
+                //if (child.material) {
+                child.material = child.material.clone();
+                child.material.transparent = true; // для выделения
+                //}
             }
         });
         return clone;
@@ -39,17 +41,43 @@ export default function DraggableModel({modelPath,
         scl.current = [...scale];
     }, [scale]);
 
-    // Устанавливаем прозрачность для выделенного объекта
     useEffect(() => {
-        if (ref.current) {
-            ref.current.traverse((child) => {
-                if (child.isMesh) {
-                    //child.material.transparent = true;
-                    child.material.opacity = isSelected ? 0.5 : 1.0;
-                }
-            });
+        if (!ref.current) return;
+
+        // Устанавливаем прозрачность для выделенного объекта
+        ref.current.traverse((child) => {
+            if (child.isMesh && child.material) {
+                child.material.opacity = isSelected ? 0.5 : 1.0;
+            }
+        });
+
+        // Уведомляем родительский компонент о готовности ref
+        if (isSelected && onRefReady) {
+            onRefReady(ref.current);
         }
-    }, [isSelected]);
+
+        // Слушаем изменения трансформации
+        const handleTransform = () => {
+            if (ref.current && isSelected && onTransform) {
+                const newRotation = [
+                    ref.current.rotation.x,
+                    ref.current.rotation.y,
+                    ref.current.rotation.z
+                ];
+                onTransform(newRotation);
+            }
+        };
+
+        if (isSelected) {
+            ref.current.addEventListener('objectChange', handleTransform);
+        }
+
+        return () => {
+            if (ref.current) {
+                ref.current.removeEventListener('objectChange', handleTransform);
+            }
+        };
+    }, [isSelected, onRefReady, onTransform]);
 
     // перемещение
     const handleDrag = ({ x, z }) => {
