@@ -8,7 +8,7 @@
     padding-top: 16px;
 }
 
-.properties .position, .rotation{
+.properties .position, .rotation, .scale{
     margin: 20px;
     font-size: 22px;
 }
@@ -18,12 +18,17 @@
     display: flex;
 }
 
+.properties .scale div {
+    padding-top: 10px;
+    display: flex;
+}
+
 /*убирает инкремент и декремент для свойств*/
 input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
 }
 
-input {
+.properties div input {
     /*appearance: none;*/
     margin-left: 20px;
     margin-right: 10px;

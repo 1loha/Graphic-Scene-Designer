@@ -12,6 +12,7 @@ const Scene = ({ objects, models, selectedModelId, onModelSelect, onModelUpdate 
     const orbitControlRef = useRef();
     const [selectedRef, setSelectedRef] = useState(null);
     const [transformMode, setTransformMode] = useState('rotate');
+    const [isTransformActive, setIsTransformActive] = useState(false);
 
 
     useEffect(() => {
@@ -19,9 +20,16 @@ const Scene = ({ objects, models, selectedModelId, onModelSelect, onModelUpdate 
             if (e.key === 'Escape') {
                 onModelSelect(null);
                 setTransformMode('rotate');
+                setIsTransformActive(false);
             }
-            if (e.key === 'r') setTransformMode('rotate');
-            if (e.key === 's') setTransformMode('scale');
+            if (e.key === 'r') {
+                setTransformMode('rotate');
+                setIsTransformActive(true);
+            }
+            if (e.key === 's') {
+                setTransformMode('scale');
+                setIsTransformActive(true);
+            }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
@@ -59,9 +67,11 @@ const Scene = ({ objects, models, selectedModelId, onModelSelect, onModelUpdate 
             <TransformWrapper
                 selectedObject={selectedRef}
                 mode={transformMode}
+                isActive={isTransformActive}
                 orbitControlRef={orbitControlRef}
                 onChangeStart={() => { isDragging.current = true; }}
                 onChangeEnd={() => { setTimeout(() => { isDragging.current = false; }, 50); }}
+                onScaleChange={(newScale) => {if (selectedModelId) onModelUpdate(selectedModelId, { scale: newScale });}}
             />
             <OrbitControls ref={orbitControlRef}
                            makeDefault

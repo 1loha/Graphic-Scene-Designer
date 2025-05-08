@@ -4,9 +4,11 @@ import { useEffect, useRef } from 'react';
 
 export const TransformWrapper = ({selectedObject,
                                      mode,
+                                     isActive,
                                      orbitControlRef,
                                      onChangeStart,
-                                     onChangeEnd
+                                     onChangeEnd,
+                                     onScaleChange,
                                  }) => {
     const { camera, gl } = useThree();
     const controlsRef = useRef();
@@ -14,6 +16,11 @@ export const TransformWrapper = ({selectedObject,
     useEffect(() => {
         if (!controlsRef.current || !selectedObject) return;
         const controls = controlsRef.current;
+
+        if (!isActive) {
+            controls.detach();
+            return;
+        }
 
         // Настройка осей вращения
         controls.setMode(mode);
@@ -35,19 +42,16 @@ export const TransformWrapper = ({selectedObject,
         const handleObjectChange = () => {
             if (controls.dragging) {
                 onChangeStart?.();
-            } else {
-                onChangeEnd?.();
+                if (mode === 'scale' && onScaleChange) {
+                    const newScale = [
+                        selectedObject.scale.x,
+                        selectedObject.scale.y,
+                        selectedObject.scale.z,
+                    ];
+                    onScaleChange(newScale);
+                }
             }
-            // if (controls.dragging) {
-            //     onChangeStart?.();
-            // } else {
-            //     const newRotation = [
-            //         selectedObject.rotation.x,
-            //         selectedObject.rotation.y,
-            //         selectedObject.rotation.z
-            //     ];
-            //     onChangeEnd?.(newRotation);
-            // }
+            else onChangeEnd?.();
         };
         controls.addEventListener('dragging-changed', handleChange);
         controls.addEventListener('objectChange', handleObjectChange);
@@ -55,9 +59,9 @@ export const TransformWrapper = ({selectedObject,
             controls.removeEventListener('dragging-changed', handleChange);
             controls.removeEventListener('objectChange', handleObjectChange);
         };
-    }, [mode, selectedObject, orbitControlRef, onChangeStart, onChangeEnd]);
+    }, [mode, selectedObject, isActive, orbitControlRef, onChangeStart, onChangeEnd, onScaleChange]);
 
-    if (!selectedObject) return null;
+    if (!selectedObject || !isActive) return null;
 
     return (
         <TransformControls

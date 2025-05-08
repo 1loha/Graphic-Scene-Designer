@@ -13,25 +13,25 @@ const Properties = ({ selectedModel, onPositionChange, onRotationChange, onScale
         <div className={s.properties}>
             Перемещение
             <div className={s.position}>
+                {/* позиция по оси x */}
                 <div> По оси X:
-                    <input
-                        type="number"
-                        value={selectedModel.position[0]}
-                        onChange={(e) => onPositionChange(0, parseFloat(e.target.value))}
+                    <input type="number"
+                           value={selectedModel.position[0]}
+                           onChange={(e) => onPositionChange(0, parseFloat(e.target.value))}
                     /> px
                 </div>
+                {/* позиция по оси y */}
                 <div> По оси Y:
-                    <input
-                        type="number"
-                        value={selectedModel.position[1]}
-                        onChange={(e) => onPositionChange(1, parseFloat(e.target.value))}
+                    <input type="number"
+                           value={selectedModel.position[1]}
+                           onChange={(e) => onPositionChange(1, parseFloat(e.target.value))}
                     /> px
                 </div>
+                {/* позиция по оси z */}
                 <div> По оси Z:
-                    <input
-                        type="number"
-                        value={selectedModel.position[2]}
-                        onChange={(e) => onPositionChange(2, parseFloat(e.target.value))}
+                    <input type="number"
+                           value={selectedModel.position[2]}
+                           onChange={(e) => onPositionChange(2, parseFloat(e.target.value))}
                     /> px
                 </div>
             </div>
@@ -39,12 +39,33 @@ const Properties = ({ selectedModel, onPositionChange, onRotationChange, onScale
             <div className={s.rotation}>
                 <div>
                     Угол:
-                    <input
-                        type="number"
-                        min="-180"
-                        max="180"
-                        value={selectedModel.rotation[1]}
-                        onChange={(e) => onRotationChange(1, parseFloat(e.target.value))}
+                    <input type="number"
+                           min="-180"
+                           max="180"
+                           value={selectedModel.rotation[1]}
+                           onChange={(e) => onRotationChange(1, parseFloat(e.target.value))}
+                    />
+                </div>
+            </div>
+            Размер
+            <div className={s.scale}>
+                <div> Длина
+                    <input type="number"
+                           value={selectedModel.scale[0]}
+                           onChange={(e) => onScaleChange(0, parseFloat(e.target.value))}
+                    />
+                </div>
+                <div> Высота
+                    <input type="number"
+                           value={selectedModel.scale[1]}
+                           onChange={(e) => onScaleChange(1, parseFloat(e.target.value))}
+                    />
+                </div>
+
+                <div> Ширина
+                    <input type="number"
+                           value={selectedModel.scale[2]}
+                           onChange={(e) => onScaleChange(2, parseFloat(e.target.value))}
                     />
                 </div>
             </div>
