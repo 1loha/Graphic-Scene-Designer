@@ -17,8 +17,7 @@ export const AddModel = ( { objects } ) => {
     };
 
     const updateModel = (id, updates) => {
-        setModels(prevModels =>
-            prevModels.map(model =>
+        setModels(prevModels => prevModels.map(model =>
                 model.id === id ? { ...model, ...updates } : model
             )
         );

@@ -1,9 +1,8 @@
 import { Clone, useGLTF } from "@react-three/drei";
-import React, {useEffect, useMemo, useRef} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import { MathUtils } from "three";
 import { useDrag } from "./Grid";
 import { useFrame } from "@react-three/fiber";
-import { easing } from "maath";
 
 export default function DraggableModel({modelPath,
                                            position = [0, 0, 0],
@@ -28,10 +27,8 @@ export default function DraggableModel({modelPath,
         clone.traverse((child) => {
             if (child.isMesh) {
                 child.geometry = child.geometry.clone();
-                //if (child.material) {
                 child.material = child.material.clone();
                 child.material.transparent = true; // для выделения
-                //}
             }
         });
         return clone;
@@ -43,19 +40,12 @@ export default function DraggableModel({modelPath,
 
     useEffect(() => {
         if (!ref.current) return;
-
         // Устанавливаем прозрачность для выделенного объекта
         ref.current.traverse((child) => {
-            if (child.isMesh && child.material) {
-                child.material.opacity = isSelected ? 0.5 : 1.0;
-            }
+            if (child.isMesh && child.material) child.material.opacity = isSelected ? 0.5 : 1.0;
         });
-
         // Уведомляем родительский компонент о готовности ref
-        if (isSelected && onRefReady) {
-            onRefReady(ref.current);
-        }
-
+        if (isSelected && onRefReady) onRefReady(ref.current);
         // Слушаем изменения трансформации
         const handleTransform = () => {
             if (ref.current && isSelected && onTransform) {
@@ -64,13 +54,12 @@ export default function DraggableModel({modelPath,
                     ref.current.rotation.y,
                     ref.current.rotation.z
                 ];
+                rot.current = newRotation;
                 onTransform(newRotation);
             }
         };
 
-        if (isSelected) {
-            ref.current.addEventListener('objectChange', handleTransform);
-        }
+        if (isSelected) ref.current.addEventListener('objectChange', handleTransform);
 
         return () => {
             if (ref.current) {
@@ -102,10 +91,15 @@ export default function DraggableModel({modelPath,
     // обновляет позицию модели
     useFrame((_, delta) => {
         if (!ref.current) return;
-        easing.damp3(ref.current.position, pos.current, 0.1, delta);
-        easing.damp3(ref.current.rotation, rot.current, 0.1, delta);
-        easing.damp3(ref.current.scale, scl.current, 0.1, delta);
 
+        if (isSelected && onTransform) {
+            const newRotation = [
+                ref.current.rotation.x,
+                ref.current.rotation.y,
+                ref.current.rotation.z
+            ];
+            onTransform(newRotation);
+        }
     });
 
     return (
