@@ -1,17 +1,19 @@
 import React from 'react';
 import s from './DropdownObjects.module.css';
 
-const DropdownObjects = ({ addModel }) => {
+const DropdownObjects = (props) => {
 
     return (
         <div className={s.dropdownObjects}>
             {/*список объектов*/}
             <ul>
-                <li><button onClick={() => addModel('steve')}>steve</button></li>
-                <li><button onClick={() => addModel('loona')}>loona</button></li>
-                <li><button onClick={() => addModel('chair')}>chair</button></li>
-                <li><button onClick={() => addModel('table')}>table</button></li>
-                <li><button onClick={() => addModel('sofa')}>sofa</button></li>
+                {Object.entries(props.models).map(([key]) => (
+                    <li key={key}>
+                        <button onClick={() => props.addModel(props.category, key)}>
+                            {key}
+                        </button>
+                    </li>
+                ))}
             </ul>
         </div>
     )

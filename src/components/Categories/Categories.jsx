@@ -1,35 +1,29 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import s from './Categories.module.css';
 import CatalogObjects from './CatalogObjects/CatalogObjects';
 
-const Categories = ({ addModel }) => {
+const Categories = (props) => {
     const [activeCategory, setActiveCategory] = useState(null);
 
-    const handleCategoryToggle = (name) => {
-        setActiveCategory(activeCategory === name ? null : name);
+    const handleCategoryToggle = (category) => {
+        setActiveCategory(activeCategory === category ? null : category);
     };
+
     return (
         <div className={s.catalogCategory}>
-            <CatalogObjects
-                nameCategory="Мебель"
-                isOpen={activeCategory === "Мебель"}
-                onToggle={handleCategoryToggle}
-                addModel={addModel}
-            />
-            <CatalogObjects
-                nameCategory="Освещение"
-                isOpen={activeCategory === "Освещение"}
-                onToggle={handleCategoryToggle}
-                addModel={addModel}
-            />
-            <CatalogObjects
-                nameCategory="Сантехника"
-                isOpen={activeCategory === "Сантехника"}
-                onToggle={handleCategoryToggle}
-                addModel={addModel}
-            />
+            {Object.keys(props.state).map((category) => (
+                <CatalogObjects
+                    key={category}
+                    nameCategory={props.state[category].displayName}
+                    isOpen={activeCategory === category}
+                    onToggle={() => handleCategoryToggle(category)}
+                    addModel={props.addModel}
+                    models={props.state[category].models}
+                    category={category}
+                />
+            ))}
         </div>
-    )
-}
+    );
+};
 
 export default Categories;

@@ -6,26 +6,29 @@ import Properties from "./components/Properties/Properties";
 import s from './App.module.css';
 import { AddModel } from "./components/Scene/AddModel";
 
-const objects = {
-    steve: {
-        path: '/models/steve/source/model.gltf',
-        scale: [1,1,1],},
-    loona: {
-        path: '/models/shameless_loona_pose/scene.gltf',
-        scale: [0.5,0.5,0.5],},
-    chair: {
-        path: '/models/chair/scene.gltf',
-        scale: [1,1,1],},
-    table: {
-        path: '/models/table/scene.gltf',
-        scale: [1,1,1],},
-    sofa: {
-        path: '/models/sofa/scene.gltf',
-        scale: [0.05,0.05,0.05],},
-}
+// const objects = {
+//     furniture: {
+//         chair: {path: '/models/chair/scene.gltf',
+//             scale: [1,1,1],},
+//         table: {path: '/models/table/scene.gltf',
+//             scale: [1,1,1],},
+//         sofa: {path: '/models/sofa/scene.gltf',
+//             scale: [0.05,0.05,0.05],},
+//     },
+//     sanitary: {
+//         steve: {path: '/models/steve/source/model.gltf',
+//             scale: [1,1,1],},
+//         bath: {path: '/models/bath_with_sink/scene.gltf',
+//             scale: [1,1,1],},
+//         shower: {path: '/models/shower/scene.gltf',
+//             scale: [1,1,1],},
+//     },
+//     lighting: {path: 'public/models/office_lamp/scene.gltf',
+//         scale: [1,1,1],},
+// }
 
-const App = () => {
-    const { models, addModel, updateModel } = AddModel({objects});
+const App = (props) => {
+    const { models, addModel, updateModel } = AddModel(props);
     const [selectedModelId, setSelectedModelId] = useState(null);
 
     // Обработчик обновления модели
@@ -38,13 +41,13 @@ const App = () => {
     return (
         <div className={s.appWrapper}>
             <Header />
-            <Categories addModel={addModel} />
-            <Scene
-                objects={objects}
-                models={models}
-                selectedModelId={selectedModelId}
-                onModelSelect={setSelectedModelId}
-                onModelUpdate={handleModelUpdate}
+            <Categories addModel={addModel}
+                        state={props.state}/>
+            <Scene state={props.state}
+                   models={models}
+                   selectedModelId={selectedModelId}
+                   onModelSelect={setSelectedModelId}
+                   onModelUpdate={handleModelUpdate}
             />
             <Properties
                 selectedModel={selectedModel}

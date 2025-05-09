@@ -37,6 +37,7 @@ const Properties = ({ selectedModel, onPositionChange, onRotationChange, onScale
             </div>
             Угол поворота
             <div className={s.rotation}>
+                {/* угол поворота вокруг оси Y */}
                 <div>
                     Угол:
                     <input type="number"
@@ -49,19 +50,21 @@ const Properties = ({ selectedModel, onPositionChange, onRotationChange, onScale
             </div>
             Размер
             <div className={s.scale}>
+                {/* размер по длине */}
                 <div> Длина
                     <input type="number"
                            value={selectedModel.scale[0]}
                            onChange={(e) => onScaleChange(0, parseFloat(e.target.value))}
                     />
                 </div>
+                {/* размер по высоте */}
                 <div> Высота
                     <input type="number"
                            value={selectedModel.scale[1]}
                            onChange={(e) => onScaleChange(1, parseFloat(e.target.value))}
                     />
                 </div>
-
+                {/* размер по ширине */}
                 <div> Ширина
                     <input type="number"
                            value={selectedModel.scale[2]}
