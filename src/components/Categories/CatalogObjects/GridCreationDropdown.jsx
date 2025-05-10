@@ -1,12 +1,18 @@
 import React from 'react';
 import s from './DropdownObjects/DropdownObjects.module.css';
 
-const GridCreationDropdown = ({ onCreateGrid }) => {
+const GridCreationDropdown = ({ onCreateGrid, isDrawingGrid }) => {
+    const handleClick = () => {
+        onCreateGrid();
+    };
+
     return (
         <div className={s.dropdownObjects}>
             <ul>
                 <li>
-                    <button onClick={onCreateGrid}>Создать сетку</button>
+                    <button onClick={handleClick} disabled={isDrawingGrid}>
+                        Создать сетку
+                    </button>
                 </li>
             </ul>
         </div>

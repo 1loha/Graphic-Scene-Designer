@@ -4,24 +4,22 @@ export const AddModel = ( props ) => {
     const [models, setModels] = useState([]);
 
     const addModel = (category, type) => {
+        if (!props.isGridCreated) return;
         setModels(prevModels => [
-            ...prevModels,
-            {
-                type,
-                category,
+            ...prevModels, {
+                type, category,
                 id: Date.now(),
                 position: [0, 0, 0],
                 rotation: [0, 0, 0],
-                scale: props.state[category].models[type].scale,
+                normalizedScale: [1, 1, 1],
+                baseScale: props.state[category].models[type].scale,
             }
         ]);
     };
 
     const updateModel = (id, updates) => {
         setModels(prevModels =>
-            prevModels.map(model =>
-                model.id === id ? { ...model, ...updates } : model
-            )
+            prevModels.map(model =>model.id === id ? { ...model, ...updates } : model)
         );
     };
 

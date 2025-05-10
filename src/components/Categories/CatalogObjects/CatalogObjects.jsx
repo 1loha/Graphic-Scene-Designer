@@ -9,23 +9,41 @@ const CatalogObjects = (props)  => {
     const handleDropdownClick = () => props.onToggle(props.nameCategory);
     return (
         <div className={s.catalogObjects}>
-            <button onClick={handleDropdownClick}>
+            <button
+                onClick={handleDropdownClick}
+                disabled={
+                    (!props.isGridCreated && !props.isGridDropdown) ||
+                    (props.isDrawingGrid && !props.isGridDropdown)
+                }
+                className={
+                    (!props.isGridCreated && !props.isGridDropdown) ||
+                    (props.isDrawingGrid && !props.isGridDropdown)
+                        ? s.disabledButton
+                        : ''
+                }
+            >
                 <span className={s.buttonText}>{props.nameCategory}</span>
                 <span className={s.buttonIcon}>
-                    {/*смена картинки в зависимости от состояния выпадающего списка*/}
-                    <img className={s.arrowIcon}
-                         src={props.isOpen ? rightArrow : downArrow}
-                         alt=">"
+                    <img
+                        className={s.arrowIcon}
+                        src={props.isOpen ? rightArrow : downArrow}
+                        alt=">"
                     />
                 </span>
             </button>
-            {/*если на список нажали, то открыть список*/}
             {props.isOpen &&
-                (props.isGridDropdown ?
-                    (<GridCreationDropdown onCreateGrid={props.onCreateGrid} />) :
-                    (<DropdownObjects addModel={props.addModel}
-                                      models={props.models}
-                                      category={props.category}/>))}
+                (props.isGridDropdown ? (
+                    <GridCreationDropdown
+                        onCreateGrid={props.onCreateGrid}
+                        isDrawingGrid={props.isDrawingGrid}
+                    />
+                ) : (
+                    <DropdownObjects
+                        addModel={props.addModel}
+                        models={props.models}
+                        category={props.category}
+                    />
+                ))}
         </div>
     )
 }

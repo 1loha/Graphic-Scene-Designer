@@ -6,6 +6,8 @@ const Categories = (props) => {
     const [activeCategory, setActiveCategory] = useState(null);
 
     const handleCategoryToggle = (category) => {
+        if (!props.isGridCreated && category !== 'createGrid') return;
+        if (props.isDrawingGrid && category !== 'createGrid') return;
         setActiveCategory(activeCategory === category ? null : category);
     };
 
@@ -22,6 +24,8 @@ const Categories = (props) => {
                     category={category}
                     isGridDropdown={category === 'createGrid'}
                     onCreateGrid={props.onCreateGrid}
+                    isGridCreated={props.isGridCreated}
+                    isDrawingGrid={props.isDrawingGrid}
                 />
             ))}
         </div>
