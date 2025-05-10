@@ -20,6 +20,8 @@ const Categories = (props) => {
                     addModel={props.addModel}
                     models={props.state[category].models}
                     category={category}
+                    isGridDropdown={category === 'createGrid'}
+                    onCreateGrid={props.onCreateGrid}
                 />
             ))}
         </div>

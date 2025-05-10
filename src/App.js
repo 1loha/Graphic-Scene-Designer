@@ -6,35 +6,15 @@ import Properties from "./components/Properties/Properties";
 import s from './App.module.css';
 import { AddModel } from "./components/Scene/AddModel";
 
-// const objects = {
-//     furniture: {
-//         chair: {path: '/models/chair/scene.gltf',
-//             scale: [1,1,1],},
-//         table: {path: '/models/table/scene.gltf',
-//             scale: [1,1,1],},
-//         sofa: {path: '/models/sofa/scene.gltf',
-//             scale: [0.05,0.05,0.05],},
-//     },
-//     sanitary: {
-//         steve: {path: '/models/steve/source/model.gltf',
-//             scale: [1,1,1],},
-//         bath: {path: '/models/bath_with_sink/scene.gltf',
-//             scale: [1,1,1],},
-//         shower: {path: '/models/shower/scene.gltf',
-//             scale: [1,1,1],},
-//     },
-//     lighting: {path: 'public/models/office_lamp/scene.gltf',
-//         scale: [1,1,1],},
-// }
-
 const App = (props) => {
     const { models, addModel, updateModel } = AddModel(props);
     const [selectedModelId, setSelectedModelId] = useState(null);
+    const [isGridCreated, setIsGridCreated] = useState(false);
 
     // Обработчик обновления модели
-    const handleModelUpdate = (id, updates) => {
-        updateModel(id, updates);
-    };
+    const handleModelUpdate = (id, updates) => {updateModel(id, updates);};
+    // Обработчик создания сетки
+    const handleCreateGrid = () => {setIsGridCreated(true);};
 
     const selectedModel = models.find(model => model.id === selectedModelId);
 
@@ -42,12 +22,17 @@ const App = (props) => {
         <div className={s.appWrapper}>
             <Header />
             <Categories addModel={addModel}
-                        state={props.state}/>
+                        state={props.state}
+                        onCreateGrid={handleCreateGrid}
+            />
             <Scene state={props.state}
                    models={models}
                    selectedModelId={selectedModelId}
                    onModelSelect={setSelectedModelId}
                    onModelUpdate={handleModelUpdate}
+                   isGridCreated={isGridCreated}
+                   gridScale={20}
+                   gridDivisions={40}
             />
             <Properties
                 selectedModel={selectedModel}

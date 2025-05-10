@@ -1,20 +1,12 @@
 import React from 'react';
 import s from './DropdownObjects.module.css';
+import ModelList from "./ModelList";
 
 const DropdownObjects = (props) => {
-
     return (
         <div className={s.dropdownObjects}>
             {/*список объектов*/}
-            <ul>
-                {Object.entries(props.models).map(([key]) => (
-                    <li key={key}>
-                        <button onClick={() => props.addModel(props.category, key)}>
-                            {key}
-                        </button>
-                    </li>
-                ))}
-            </ul>
+            <ModelList models={props.models} category={props.category} onAddModel={props.addModel}/>
         </div>
     )
 }

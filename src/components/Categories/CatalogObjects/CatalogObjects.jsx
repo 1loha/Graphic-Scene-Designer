@@ -3,6 +3,7 @@ import s from './CatalogObjects.module.css';
 import downArrow from '../../../images/down_white.png';
 import rightArrow from '../../../images/right_white.png';
 import DropdownObjects from "./DropdownObjects/DropdownObjects";
+import GridCreationDropdown from './GridCreationDropdown';
 
 const CatalogObjects = (props)  => {
     const handleDropdownClick = () => props.onToggle(props.nameCategory);
@@ -12,13 +13,19 @@ const CatalogObjects = (props)  => {
                 <span className={s.buttonText}>{props.nameCategory}</span>
                 <span className={s.buttonIcon}>
                     {/*смена картинки в зависимости от состояния выпадающего списка*/}
-                    <img className={s.arrowIcon} src={props.isOpen ? rightArrow : downArrow} alt=">"/>
+                    <img className={s.arrowIcon}
+                         src={props.isOpen ? rightArrow : downArrow}
+                         alt=">"
+                    />
                 </span>
             </button>
             {/*если на список нажали, то открыть список*/}
-            {props.isOpen && <DropdownObjects addModel={props.addModel}
-                                              models={props.models}
-                                              category={props.category}/>}
+            {props.isOpen &&
+                (props.isGridDropdown ?
+                    (<GridCreationDropdown onCreateGrid={props.onCreateGrid} />) :
+                    (<DropdownObjects addModel={props.addModel}
+                                      models={props.models}
+                                      category={props.category}/>))}
         </div>
     )
 }

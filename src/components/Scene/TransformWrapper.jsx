@@ -19,6 +19,7 @@ export const TransformWrapper = ({selectedObject,
 
         if (!isActive) {
             controls.detach();
+            if (orbitControlRef.current) orbitControlRef.current.enabled = true;
             return;
         }
 
@@ -33,6 +34,8 @@ export const TransformWrapper = ({selectedObject,
             controls.showX = false;
             controls.showZ = false;
         }
+
+        if (orbitControlRef.current) orbitControlRef.current.enabled = true;
 
         const handleChange = () => {
             if (orbitControlRef.current) orbitControlRef.current.enabled = !controls.dragging;
@@ -58,6 +61,7 @@ export const TransformWrapper = ({selectedObject,
         return () => {
             controls.removeEventListener('dragging-changed', handleChange);
             controls.removeEventListener('objectChange', handleObjectChange);
+            if (orbitControlRef.current) orbitControlRef.current.enabled = true;
         };
     }, [mode, selectedObject, isActive, orbitControlRef, onChangeStart, onChangeEnd, onScaleChange]);
 
