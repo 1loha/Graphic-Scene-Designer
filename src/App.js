@@ -28,9 +28,17 @@ const App = (props) => {
         setIsDrawingGrid(false);
     };
 
-    const handlePointAdded = (point) => {
-        console.log('handlePointAdded:', point);
-        setGridPoints((prev) => [...prev, point]);
+    const handlePointAdded = (data) => {
+        console.log('handlePointAdded:', data);
+        if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
+            // Array of points (e.g., after removal)
+            setGridPoints(data);
+        } else if (Array.isArray(data) && data.length === 3 && data.every(num => typeof num === 'number')) {
+            // Single point [x, 0, z]
+            setGridPoints((prev) => [...prev, data]);
+        } else {
+            console.error('Invalid point data:', data);
+        }
     };
 
     useEffect(() => {
@@ -64,8 +72,8 @@ const App = (props) => {
                 onModelSelect={setSelectedModelId}
                 onModelUpdate={handleModelUpdate}
                 isGridCreated={isGridCreated}
-                gridScale={20}
-                gridDivisions={40}
+                gridScale={props.gridScale || 20}
+                gridDivisions={props.gridDivisions || 40}
                 isDrawing={isDrawingGrid}
                 onGridCreated={handleGridCreated}
                 onPointAdded={handlePointAdded}
