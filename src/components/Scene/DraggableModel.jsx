@@ -1,26 +1,15 @@
 import { Clone, useGLTF } from "@react-three/drei";
 import React, { useEffect, useMemo, useRef } from "react";
-import { MathUtils } from "three";
 import { useDrag } from "./Grid";
 import { useFrame } from "@react-three/fiber";
 
-export default function DraggableModel({modelPath,
-                                           position = [0, 0, 0],
-                                           rotation = [0, 0, 0],
-                                           scale = [1, 1, 1],
-                                           gridScale = 20,
-                                           gridDivisions = 40,
-                                           isSelected,
-                                           onClick,
-                                           onDrag,
-                                           onRefReady,
-                                           onTransform}) {
+export default function DraggableModel(props) {
     const ref = useRef();
-    const pos = useRef([...position]);
-    const rot = useRef([...rotation]);
-    const scl = useRef([...scale]);
+    const pos = useRef(props.position || [0, 0, 0]);
+    const rot = useRef(props.rotation || [0, 0, 0]);
+    const scl = useRef(props.scale || [1, 1, 1]);
 
-    const { scene } = useGLTF(modelPath);
+    const { scene } = useGLTF(props.modelPath);
 
     const clonedScene = useMemo(() => {
         const clone = scene.clone(true);
@@ -28,92 +17,80 @@ export default function DraggableModel({modelPath,
             if (child.isMesh) {
                 child.geometry = child.geometry.clone();
                 child.material = child.material.clone();
-                child.material.transparent = true; // для выделения
+                child.material.transparent = true;
             }
         });
         return clone;
     }, [scene]);
 
     useEffect(() => {
-        scl.current = [...scale];
-    }, [scale]);
+        scl.current = props.scale || [1, 1, 1];
+    }, [props.scale]);
 
     useEffect(() => {
         if (!ref.current) return;
-        // Устанавливаем прозрачность для выделенного объекта
         ref.current.traverse((child) => {
-            if (child.isMesh && child.material) child.material.opacity = isSelected ? 0.5 : 1.0;
+            if (child.isMesh && child.material) child.material.opacity = props.isSelected ? 0.5 : 1.0;
         });
-        // Уведомляем родительский компонент о готовности ref
-        if (isSelected && onRefReady) onRefReady(ref.current);
-        // Слушаем изменения трансформации
+        if (props.isSelected && props.onRefReady) props.onRefReady(ref.current);
         const handleTransform = () => {
-            if (ref.current && isSelected && onTransform) {
+            if (ref.current && props.isSelected && props.onTransform) {
                 const newRotation = [
                     ref.current.rotation.x,
                     ref.current.rotation.y,
                     ref.current.rotation.z
                 ];
                 rot.current = newRotation;
-                onTransform(newRotation);
+                props.onTransform(newRotation);
             }
         };
 
-        if (isSelected) ref.current.addEventListener('objectChange', handleTransform);
+        if (props.isSelected) ref.current.addEventListener('objectChange', handleTransform);
 
         return () => {
             if (ref.current) {
                 ref.current.removeEventListener('objectChange', handleTransform);
             }
         };
-    }, [isSelected, onRefReady, onTransform]);
+    }, [props.isSelected, props.onRefReady, props.onTransform]);
 
-    // перемещение
     const handleDrag = ({ x, z }) => {
-        const cellSize = gridScale / gridDivisions;
-        const newX = MathUtils.clamp(
-            Math.round(x / cellSize) * cellSize + cellSize / 2,
-            -gridScale / 2 + cellSize / 2,
-            gridScale / 2 - cellSize / 2
-        );
-        const newZ = MathUtils.clamp(
-            Math.round(z / cellSize) * cellSize + cellSize / 2,
-            -gridScale / 2 + cellSize / 2,
-            gridScale / 2 - cellSize / 2
-        );
-        const newPosition = [newX, position[1], newZ];
+        const newX = Math.round(x);
+        const newZ = Math.round(z);
+        const newPosition = [newX, props.position[1] || 0, newZ];
         pos.current = newPosition;
-        onDrag(newPosition);
+        props.onDrag(newPosition);
     };
 
     const [events] = useDrag(handleDrag);
 
-    // обновляет позицию модели
     useFrame((_, delta) => {
         if (!ref.current) return;
 
-        if (isSelected && onTransform) {
+        if (props.isSelected && props.onTransform) {
             const newRotation = [
                 ref.current.rotation.x,
                 ref.current.rotation.y,
                 ref.current.rotation.z
             ];
-            onTransform(newRotation);
+            props.onTransform(newRotation);
         }
     });
 
     return (
-        <Clone ref={ref}
-               object={clonedScene}
-               {...events}
-               position={position}
-               rotation={rotation}
-               scale={scale}
-               onClick={(e) => {
-                   e.stopPropagation();
-                   onClick();
-               }}
+        <Clone
+            ref={ref}
+            object={clonedScene}
+            {...events}
+            position={props.position || [0, 0, 0]}
+            rotation={props.rotation || [0, 0, 0]}
+            scale={props.scale || [1, 1, 1]}
+            onClick={(e) => {
+                if (!props.isGridCreated || !props.selectedModelType) {
+                    e.stopPropagation();
+                    props.onClick();
+                }
+            }}
         />
     );
-
 }

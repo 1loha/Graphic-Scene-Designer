@@ -1,75 +1,96 @@
-import { Vector3, Plane } from 'three'
-import { createContext, useRef, useContext, useCallback, useState } from 'react'
-import { useThree } from '@react-three/fiber'
+import { Vector3, Plane } from 'three';
+import { useThree } from '@react-three/fiber';
+import {useRef, useCallback, useEffect} from 'react';
+import * as THREE from "three";
 
-const v = new Vector3() // вспомогательный вектор для вычислений
-const p = new Plane(new Vector3(0, 1, 0), 0) // плоскость для пересечений (Y=0)
-const context = createContext() // Контекст для активации плоскости
+const v = new Vector3(); // Helper vector for calculations
+const p = new Plane(new Vector3(0, 1, 0), 0); // XZ plane at Y=0 for intersections
 
-// Управление событиями перетаскивания
-function useDrag(onDrag) {
-    const controls = useThree((state) => state.controls)
-    const activatePlane = useContext(context)
-    const [active, activate] = useState(false)
+// Handle dragging events
+export function useDrag(onDrag) {
+    const { gl, camera, controls } = useThree();
+    const isDragging = useRef(false);
+    const raycaster = useRef(new THREE.Raycaster());
 
-    // начало перетаскивания (блокирует управление камерой)
-    const down = useCallback((e) => {
-        e.stopPropagation()
-        activate(true)
-        activatePlane(true)
-        if (controls) controls.enabled = false
-        e.target.setPointerCapture(e.pointerId)
-    }, [activatePlane, controls])
+    // Start dragging (disable camera controls)
+    const down = useCallback(
+        (e) => {
+            e.stopPropagation();
+            console.log('useDrag: Pointer down');
+            isDragging.current = true;
+            if (controls) controls.enabled = false;
+            e.target.setPointerCapture(e.pointerId);
+        },
+        [controls]
+    );
 
-    // окончание перетаскивания
-    const up = useCallback((e) => {
-        activate(false)
-        activatePlane(false)
-        if (controls) controls.enabled = true
-        e.target.releasePointerCapture(e.pointerId)
-    }, [activatePlane, controls])
+    // End dragging
+    const up = useCallback(
+        (e) => {
+            console.log('useDrag: Pointer up');
+            isDragging.current = false;
+            if (controls) controls.enabled = true;
+            e.target.releasePointerCapture(e.pointerId);
+        },
+        [controls]
+    );
 
-    // обработка перемещения
-    const move = useCallback((e) => {
-        e.stopPropagation()
-        if (active && e.ray.intersectPlane(p, v)) onDrag(v)
-    }, [onDrag, active])
+    // Handle movement
+    const move = useCallback(
+        (e) => {
+            if (!isDragging.current) return;
+            e.stopPropagation();
 
-    return [{
-        onPointerDown: down,
-        onPointerUp: up,
-        onPointerMove: move
-    }, active]
+            const rect = gl.domElement.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.current.setFromCamera(new THREE.Vector2(x, y), camera);
+            if (raycaster.current.ray.intersectPlane(p, v)) {
+                console.log('useDrag: Dragging to', { x: v.x, z: v.z });
+                onDrag({ x: v.x, z: v.z });
+            }
+        },
+        [onDrag, gl, camera]
+    );
+
+    // Attach move and up listeners to the canvas
+    useEffect(() => {
+        gl.domElement.addEventListener('pointermove', move);
+        gl.domElement.addEventListener('pointerup', up);
+        return () => {
+            gl.domElement.removeEventListener('pointermove', move);
+            gl.domElement.removeEventListener('pointerup', up);
+        };
+    }, [move, up, gl]);
+
+    return [{ onPointerDown: down, onPointerUp: up, onPointerMove: move }];
 }
 
-// создание сетки
-function Grid({ children, gridScale, gridDivisions, ...props }) {
-    // ссылки на DOM-элементы сетки и плоскости
-    const grid = useRef()
-    const plane = useRef()
+// Create grid
+export function Grid({ children, gridScale, gridDivisions, ...props }) {
+    // References to grid and plane DOM elements
+    const grid = useRef();
+    const plane = useRef();
 
-    // отслеживание состояния активности
-    const [_, activate] = useState(false)
-
-    // создает сетку
     return (
         <group {...props}>
             <group scale={gridScale}>
-                <gridHelper ref={grid}
-                            args={[1, gridDivisions, '#888', '#bbb']}
-                            userData={{ isGrid: true }}/>
-                <mesh ref={plane}
-                      rotation-x={-Math.PI / 2}
-                      userData={{ isGrid: true }}>
+                <gridHelper
+                    ref={grid}
+                    args={[1, gridDivisions, '#888', '#bbb']}
+                    userData={{ isGrid: true }}
+                />
+                <mesh
+                    ref={plane}
+                    rotation-x={-Math.PI / 2}
+                    userData={{ isGrid: true }}
+                >
                     <planeGeometry />
                     <meshStandardMaterial visible={false} />
                 </mesh>
             </group>
-            <context.Provider value={activate}>
-                {children}
-            </context.Provider>
+            {children}
         </group>
-    )
+    );
 }
-
-export { Grid, useDrag }

@@ -5,7 +5,7 @@ import rightArrow from '../../../images/right_white.png';
 import DropdownObjects from "./DropdownObjects/DropdownObjects";
 import GridCreationDropdown from './GridCreationDropdown';
 
-const CatalogObjects = (props)  => {
+const CatalogObjects = (props) => {
     const handleDropdownClick = () => props.onToggle(props.nameCategory);
     return (
         <div className={s.catalogObjects}>
@@ -42,10 +42,11 @@ const CatalogObjects = (props)  => {
                         addModel={props.addModel}
                         models={props.models}
                         category={props.category}
+                        onSelectModelType={props.onSelectModelType}
                     />
                 ))}
         </div>
-    )
-}
+    );
+};
 
 export default CatalogObjects;

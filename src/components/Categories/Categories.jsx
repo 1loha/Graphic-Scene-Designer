@@ -26,6 +26,7 @@ const Categories = (props) => {
                     onCreateGrid={props.onCreateGrid}
                     isGridCreated={props.isGridCreated}
                     isDrawingGrid={props.isDrawingGrid}
+                    onSelectModelType={props.onSelectModelType}
                 />
             ))}
         </div>

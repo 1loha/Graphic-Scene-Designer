@@ -5,7 +5,9 @@ const ModelList = (props) => {
         <ul>
             {Object.entries(props.models).map(([key]) => (
                 <li key={key}>
-                    <button onClick={() => props.onAddModel(props.category, key)}> {key} </button>
+                    <button onClick={() => props.onSelectModelType(props.category, key)}>
+                        {key}
+                    </button>
                 </li>
             ))}
         </ul>
