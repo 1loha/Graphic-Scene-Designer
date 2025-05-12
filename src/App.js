@@ -11,68 +11,55 @@ const App = (props) => {
     const [isGridCreated, setIsGridCreated] = useState(false);
     const [isDrawingGrid, setIsDrawingGrid] = useState(false);
     const [gridPoints, setGridPoints] = useState([]);
-    const [selectedModelType, setSelectedModelType] = useState(null); // { category, type }
+    const [selectedModelType, setSelectedModelType] = useState(null);
+    const [resetDrawing, setResetDrawing] = useState(false); // New state to signal reset
 
-    // Pass state and isGridCreated to AddModel
     const { models, addModel, updateModel } = AddModel({ state: props.state, isGridCreated });
 
     const handleModelUpdate = (id, updates) => {
-        console.log('handleModelUpdate:', id, updates);
         updateModel(id, updates);
     };
 
     const handleCreateGrid = () => {
-        console.log('handleCreateGrid called');
         setIsDrawingGrid(true);
         setGridPoints([]);
+        setIsGridCreated(false); // Reset grid created state
+        setResetDrawing(true); // Signal to reset drawing state
     };
 
     const handleGridCreated = (isCreated) => {
-        console.log('handleGridCreated:', isCreated);
         setIsGridCreated(isCreated);
         setIsDrawingGrid(false);
+        setResetDrawing(false); // Clear reset signal
     };
 
     const handlePointAdded = (data) => {
-        console.log('handlePointAdded:', data);
         if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
             setGridPoints(data);
         } else if (Array.isArray(data) && data.length === 3 && data.every(num => typeof num === 'number')) {
             setGridPoints((prev) => [...prev, data]);
-        } else {
-            console.error('Invalid point data:', data);
         }
     };
 
     const handleSelectModelType = (category, type) => {
-        console.log('Selected model type:', { category, type });
         setSelectedModelType({ category, type });
     };
 
     const handleModelPlaced = () => {
-        console.log('handleModelPlaced: Clearing selectedModelType');
         setSelectedModelType(null);
     };
 
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape' && isDrawingGrid) {
-                console.log('Escape pressed, canceling drawing');
                 setIsDrawingGrid(false);
                 setGridPoints([]);
+                setResetDrawing(true); // Reset drawing on Escape
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isDrawingGrid]);
-
-    // Log state and models for debugging
-    console.log('App state:', {
-        state: props.state,
-        models,
-        isGridCreated,
-        selectedModelType
-    });
 
     const selectedModel = models.find((model) => model.id === selectedModelId);
 
@@ -103,6 +90,7 @@ const App = (props) => {
                 addModel={addModel}
                 selectedModelType={selectedModelType}
                 onModelPlaced={handleModelPlaced}
+                resetDrawing={resetDrawing} // Pass reset signal
             />
             <Properties
                 selectedModel={selectedModel}

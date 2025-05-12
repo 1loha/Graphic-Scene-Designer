@@ -33,8 +33,6 @@ const CustomGrid = ({ gridScale, gridDivisions, isDrawing, gridPoints, isShapeCl
             new THREE.Float32BufferAttribute([], 3)
         );
 
-        console.log('Group initialized with children:', group.children);
-
         return () => {
             group.remove(points, lines);
             if (shapeMeshRef.current) group.remove(shapeMeshRef.current);
@@ -43,12 +41,9 @@ const CustomGrid = ({ gridScale, gridDivisions, isDrawing, gridPoints, isShapeCl
 
     // Update points, lines, and shape
     useEffect(() => {
-        console.log('gridPoints:', gridPoints);
         const points = gridPoints.flat();
-        console.log('Flattened points:', points);
 
         if (points.length > 0 && points.length % 3 !== 0) {
-            console.error('Invalid gridPoints format, expected [x, y, z, ...]');
             return;
         }
 
@@ -71,10 +66,11 @@ const CustomGrid = ({ gridScale, gridDivisions, isDrawing, gridPoints, isShapeCl
 
         // Create filled shape when closed
         if (isShapeClosed && gridPoints.length >= 3) {
-            console.log('Creating shape with points:', gridPoints);
+            // Guard against empty gridPoints
+            if (gridPoints.length === 0) return;
+
             const shape = new THREE.Shape();
             gridPoints.forEach(([x, , z], i) => {
-                console.log(`Point ${i}: [${x}, ${z}]`);
                 if (i === 0) {
                     shape.moveTo(x, z);
                 } else {
@@ -95,7 +91,6 @@ const CustomGrid = ({ gridScale, gridDivisions, isDrawing, gridPoints, isShapeCl
             }
             shapeMeshRef.current = mesh;
 
-            console.log('Shape mesh added');
             onShapeComplete(true);
         }
     }, [gridPoints, isShapeClosed, onShapeComplete]);

@@ -16,7 +16,6 @@ export function useDrag(onDrag) {
     const down = useCallback(
         (e) => {
             e.stopPropagation();
-            console.log('useDrag: Pointer down');
             isDragging.current = true;
             if (controls) controls.enabled = false;
             e.target.setPointerCapture(e.pointerId);
@@ -27,7 +26,6 @@ export function useDrag(onDrag) {
     // End dragging
     const up = useCallback(
         (e) => {
-            console.log('useDrag: Pointer up');
             isDragging.current = false;
             if (controls) controls.enabled = true;
             e.target.releasePointerCapture(e.pointerId);
@@ -47,7 +45,6 @@ export function useDrag(onDrag) {
 
             raycaster.current.setFromCamera(new THREE.Vector2(x, y), camera);
             if (raycaster.current.ray.intersectPlane(p, v)) {
-                console.log('useDrag: Dragging to', { x: v.x, z: v.z });
                 onDrag({ x: v.x, z: v.z });
             }
         },

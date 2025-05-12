@@ -14,14 +14,12 @@ const Scene = (props) => {
     const [isTransformActive, setIsTransformActive] = useState(false);
     const [isShapeClosed, setIsShapeClosed] = useState(false);
 
-    // Log props for debugging
-    console.log('Scene props:', {
-        isGridCreated: props.isGridCreated,
-        selectedModelType: props.selectedModelType,
-        models: props.models,
-        addModel: typeof props.addModel,
-        onModelPlaced: typeof props.onModelPlaced
-    });
+    // Reset isShapeClosed when starting a new drawing
+    useEffect(() => {
+        if (props.resetDrawing) {
+            setIsShapeClosed(false);
+        }
+    }, [props.resetDrawing]);
 
     // Handle drawing mode and shape completion
     const handleShapeComplete = (isComplete) => {
@@ -34,7 +32,7 @@ const Scene = (props) => {
     const DrawingHandler = () => {
         const { camera, gl } = useThree();
         const raycaster = useRef(new THREE.Raycaster());
-        const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)); // XZ plane at Y=0
+        const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
 
         // Check for self-intersection
         const checkSelfIntersection = (points, newPoint) => {
@@ -49,7 +47,6 @@ const Scene = (props) => {
                     end: points[i + 1],
                 };
                 if (lineSegmentsIntersect(newEdge, edge)) {
-                    console.warn('Self-intersection detected at point:', newPoint);
                     return true;
                 }
             }
@@ -74,7 +71,7 @@ const Scene = (props) => {
             return t >= 0 && t <= 1 && u >= 0 && u <= 1;
         };
 
-        // Point-in-polygon test (ray-casting algorithm)
+        // Point-in-polygon test
         const isPointInPolygon = (point, vertices) => {
             let inside = false;
             const x = point[0], z = point[2];
@@ -89,9 +86,7 @@ const Scene = (props) => {
         };
 
         useEffect(() => {
-            console.log('DrawingHandler mounted, isDrawing:', props.isDrawing, 'isGridCreated:', props.isGridCreated, 'selectedModelType:', props.selectedModelType);
             const handleMouseDown = (event) => {
-                console.log('Mouse down, isDragging:', isDragging.current, 'button:', event.button);
                 if (isDragging.current || event.button !== 0) return;
 
                 const rect = gl.domElement.getBoundingClientRect();
@@ -103,7 +98,6 @@ const Scene = (props) => {
                 raycaster.current.ray.intersectPlane(plane.current, intersection);
 
                 if (!intersection) {
-                    console.log('No intersection with plane');
                     return;
                 }
 
@@ -120,7 +114,6 @@ const Scene = (props) => {
                         newPoint[0] === lastPoint[0] &&
                         newPoint[2] === lastPoint[2]
                     ) {
-                        console.log('Point ignored (duplicate)');
                         return;
                     }
 
@@ -132,7 +125,6 @@ const Scene = (props) => {
                             (newPoint[2] - firstPoint[2]) ** 2
                         );
                         if (distance < 0.5) {
-                            console.log('Closing shape at first point');
                             setIsShapeClosed(true);
                             return;
                         }
@@ -140,20 +132,16 @@ const Scene = (props) => {
 
                     // Check for self-intersection
                     if (checkSelfIntersection(props.gridPoints, newPoint)) {
-                        console.warn('Point ignored due to self-intersection');
                         return;
                     }
 
-                    console.log('Point added:', newPoint);
                     props.onPointAdded(newPoint);
                 } else if (props.isGridCreated && props.selectedModelType) {
-                    // Place model inside polygon with 1-unit grid snapping
+                    // Place model inside polygon
                     const snappedX = Math.round(intersection.x);
                     const snappedZ = Math.round(intersection.z);
                     const point = [snappedX, 0, snappedZ];
-                    console.log('Checking point:', point, 'in polygon with vertices:', props.gridPoints);
                     if (isPointInPolygon(point, props.gridPoints)) {
-                        console.log('Placing model at:', point);
                         if (typeof props.addModel === 'function') {
                             props.addModel(
                                 props.selectedModelType.category,
@@ -163,14 +151,8 @@ const Scene = (props) => {
                             if (typeof props.onModelPlaced === 'function') {
                                 props.onModelPlaced();
                             }
-                        } else {
-                            console.error('addModel is not a function:', props.addModel);
                         }
-                    } else {
-                        console.log('Click outside polygon, model not placed');
                     }
-                } else {
-                    console.log('Model placement skipped, isGridCreated:', props.isGridCreated, 'selectedModelType:', props.selectedModelType);
                 }
             };
 
@@ -178,7 +160,6 @@ const Scene = (props) => {
                 if (!props.isDrawing || event.button !== 2 || isShapeClosed) return;
                 event.preventDefault();
                 if (props.gridPoints.length > 0) {
-                    console.log('Removing last point');
                     const newPoints = props.gridPoints.slice(0, -1);
                     props.onPointAdded(newPoints);
                 }
@@ -237,7 +218,7 @@ const Scene = (props) => {
         <div style={{ position: 'relative' }}>
             <Canvas
                 orthographic
-                camera={{ position: [0, 10, 0], zoom: 30, near: 0.1 }} // Increased zoom
+                camera={{ position: [0, 100, 0], zoom: 30, near: 0.1 }}
                 onPointerMissed={() => !isDragging.current && !props.isDrawing && props.onModelSelect(null)}
             >
                 <ambientLight intensity={0.5 * Math.PI} />
@@ -257,8 +238,6 @@ const Scene = (props) => {
                                 const finalScale = model.normalizedScale.map(
                                     (val, i) => val * model.baseScale[i]
                                 );
-                                console.log('Rendering model:', model);
-                                console.log('Model path:', props.state[model.category].models[model.type].path);
                                 return (
                                     <DraggableModel
                                         key={model.id}
@@ -283,6 +262,7 @@ const Scene = (props) => {
                                         gridDivisions={props.gridDivisions}
                                         isGridCreated={props.isGridCreated}
                                         selectedModelType={props.selectedModelType}
+                                        gridPoints={props.gridPoints}
                                     />
                                 );
                             })}

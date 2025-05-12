@@ -23,6 +23,20 @@ export default function DraggableModel(props) {
         return clone;
     }, [scene]);
 
+    // Point-in-polygon test
+    const isPointInPolygon = (point, vertices) => {
+        let inside = false;
+        const x = point[0], z = point[2];
+        for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+            const xi = vertices[i][0], zi = vertices[i][2];
+            const xj = vertices[j][0], zj = vertices[j][2];
+            const intersect = ((zi > z) !== (zj > z)) &&
+                (x < (xj - xi) * (z - zi) / (zj - zi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    };
+
     useEffect(() => {
         scl.current = props.scale || [1, 1, 1];
     }, [props.scale]);
@@ -58,8 +72,14 @@ export default function DraggableModel(props) {
         const newX = Math.round(x);
         const newZ = Math.round(z);
         const newPosition = [newX, props.position[1] || 0, newZ];
-        pos.current = newPosition;
-        props.onDrag(newPosition);
+        console.log('Attempting drag to:', newPosition);
+        if (isPointInPolygon(newPosition, props.gridPoints)) {
+            console.log('Position valid, updating to:', newPosition);
+            pos.current = newPosition;
+            props.onDrag(newPosition);
+        } else {
+            console.log('Position outside polygon, keeping last position:', pos.current);
+        }
     };
 
     const [events] = useDrag(handleDrag);

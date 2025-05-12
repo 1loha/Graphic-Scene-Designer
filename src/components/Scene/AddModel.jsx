@@ -5,7 +5,6 @@ export const AddModel = (props) => {
 
     const addModel = (category, type, options = {}) => {
         if (!props.isGridCreated) return;
-        console.log('Adding model:', category, type, options);
         try {
             const modelData = props.state[category]?.models[type];
             if (!modelData || !modelData.scale) {
