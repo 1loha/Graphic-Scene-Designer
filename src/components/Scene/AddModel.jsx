@@ -32,5 +32,9 @@ export const AddModel = (props) => {
         );
     };
 
-    return { models, addModel, updateModel };
+    const deleteModel = (id) => {
+        setModels(prevModels => prevModels.filter(model => model.id !== id));
+    };
+
+    return { models, addModel, updateModel, deleteModel };
 };

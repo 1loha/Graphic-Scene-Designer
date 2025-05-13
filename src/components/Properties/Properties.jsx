@@ -2,7 +2,7 @@ import React from 'react';
 import s from './Properties.module.css';
 import PropertyInput from './PropertyInput';
 
-const Properties = ({ selectedModel, onPositionChange, onRotationChange, onScaleChange }) => {
+const Properties = ({ selectedModel, onPositionChange, onRotationChange, onScaleChange, onDelete }) => {
     if (!selectedModel) return <div className={s.properties}>Выберите объект</div>;
 
     const positionAxes = [
@@ -54,6 +54,11 @@ const Properties = ({ selectedModel, onPositionChange, onRotationChange, onScale
                         />
                     ))}
                 </div>
+            </div>
+            <div>
+                <button onClick={() => onDelete(selectedModel.id)} className={s.deleteButton}>
+                    Удалить
+                </button>
             </div>
         </div>
     );

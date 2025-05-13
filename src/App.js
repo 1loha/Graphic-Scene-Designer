@@ -14,7 +14,7 @@ const App = (props) => {
     const [selectedModelType, setSelectedModelType] = useState(null);
     const [resetDrawing, setResetDrawing] = useState(false); // New state to signal reset
 
-    const { models, addModel, updateModel } = AddModel({ state: props.state, isGridCreated });
+    const { models, addModel, updateModel, deleteModel } = AddModel({ state: props.state, isGridCreated });
 
     const handleModelUpdate = (id, updates) => {
         updateModel(id, updates);
@@ -47,6 +47,13 @@ const App = (props) => {
 
     const handleModelPlaced = () => {
         setSelectedModelType(null);
+    };
+
+    const handleDeleteModel = (id) => {
+        deleteModel(id);
+        if (selectedModelId === id) {
+            setSelectedModelId(null);
+        }
     };
 
     useEffect(() => {
@@ -112,6 +119,7 @@ const App = (props) => {
                     newScale[axis] = value;
                     handleModelUpdate(selectedModelId, { normalizedScale: newScale });
                 }}
+                onDelete={handleDeleteModel}
             />
         </div>
     );

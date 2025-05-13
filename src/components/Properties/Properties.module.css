@@ -23,6 +23,22 @@
     display: flex;
 }
 
+.properties .deleteButton {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fd1f1f;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    width: 70%;
+    height: 40px;
+}
+
+.properties .deleteButton:hover {
+    background-color: #cc0000;
+}
 /*убирает инкремент и декремент для свойств*/
 input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
