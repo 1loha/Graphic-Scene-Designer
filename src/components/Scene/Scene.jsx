@@ -5,36 +5,47 @@ import * as THREE from 'three';
 import CustomGrid from './CustomGrid';
 import DraggableModel from './DraggableModel';
 import { TransformWrapper } from './TransformWrapper';
+import { isPointInPolygon } from './isPointInPolygon';
 
+// Главный компонент сцены, управляющий 3D-рендерингом
 const Scene = (props) => {
+    // Состояние для отслеживания перетаскивания объектов
     const isDragging = useRef(false);
+    // Ссылка на управление камерой (OrbitControls)
     const orbitControlRef = useRef();
+    // Ссылка на выбранный объект для трансформации
     const [selectedRef, setSelectedRef] = useState(null);
-    const [transformMode, setTransformMode] = useState('rotate');
+    // Режим трансформации: 'translate' (перетаскивание), 'rotate' (вращение), 'scale' (масштабирование)
+    const [transformMode, setTransformMode] = useState('translate'); // По умолчанию — перетаскивание
+    // Активность трансформации
     const [isTransformActive, setIsTransformActive] = useState(false);
+    // Флаг завершения формы полигона
     const [isShapeClosed, setIsShapeClosed] = useState(false);
 
-    // Reset isShapeClosed when starting a new drawing
+    // Сбрасывает флаг завершения полигона при начале нового рисования
     useEffect(() => {
         if (props.resetDrawing) {
             setIsShapeClosed(false);
         }
     }, [props.resetDrawing]);
 
-    // Handle drawing mode and shape completion
+    // Обработчик завершения формы полигона
     const handleShapeComplete = (isComplete) => {
         if (isComplete) {
-            props.onGridCreated(true);
+            props.onGridCreated(true); // Уведомляет, что полигон создан
         }
     };
 
-    // Mouse handler for drawing points and placing models
+    // Компонент для обработки мыши (рисование точек и размещение моделей)
     const DrawingHandler = () => {
+        // Получает доступ к камере и WebGL-контексту
         const { camera, gl } = useThree();
+        // Луч для определения точки пересечения мыши с плоскостью
         const raycaster = useRef(new THREE.Raycaster());
+        // Плоскость XZ для пересечения (y=0)
         const plane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
 
-        // Check for self-intersection
+        // Проверяет самопересечение полигона при добавлении новой точки
         const checkSelfIntersection = (points, newPoint) => {
             if (points.length < 3) return false;
             const newEdge = {
@@ -47,13 +58,13 @@ const Scene = (props) => {
                     end: points[i + 1],
                 };
                 if (lineSegmentsIntersect(newEdge, edge)) {
-                    return true;
+                    return true; // Обнаружено пересечение
                 }
             }
             return false;
         };
 
-        // Line segment intersection test
+        // Проверяет пересечение двух отрезков (для самопересечения)
         const lineSegmentsIntersect = (edge1, edge2) => {
             const p = edge1.start;
             const r = [edge1.end[0] - p[0], edge1.end[2] - p[2]];
@@ -68,26 +79,14 @@ const Scene = (props) => {
             const t = ((q[0] - p[0]) * s[1] - (q[2] - p[2]) * s[0]) / rxs;
             const u = ((q[0] - p[0]) * r[1] - (q[2] - p[2]) * r[0]) / rxs;
 
-            return t >= 0 && t <= 1 && u >= 0 && u <= 1;
+            return t >= 0 && t <= 1 && u >= 0 && u <= 1; // True, если отрезки пересекаются
         };
 
-        // Point-in-polygon test
-        const isPointInPolygon = (point, vertices) => {
-            let inside = false;
-            const x = point[0], z = point[2];
-            for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
-                const xi = vertices[i][0], zi = vertices[i][2];
-                const xj = vertices[j][0], zj = vertices[j][2];
-                const intersect = ((zi > z) !== (zj > z)) &&
-                    (x < (xj - xi) * (z - zi) / (zj - zi) + xi);
-                if (intersect) inside = !inside;
-            }
-            return inside;
-        };
-
+        // Обработчик событий мыши
         useEffect(() => {
+            // Обработка нажатия мыши (ЛКМ для добавления точек или моделей)
             const handleMouseDown = (event) => {
-                if (isDragging.current || event.button !== 0) return;
+                if (isDragging.current || event.button !== 0) return; // Игнорирует, если не ЛКМ или идет перетаскивание
 
                 const rect = gl.domElement.getBoundingClientRect();
                 const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -97,17 +96,15 @@ const Scene = (props) => {
                 const intersection = new THREE.Vector3();
                 raycaster.current.ray.intersectPlane(plane.current, intersection);
 
-                if (!intersection) {
-                    return;
-                }
+                if (!intersection) return; // Нет пересечения с плоскостью
 
                 if (props.isDrawing && !isShapeClosed) {
-                    // Snap to 1-unit grid
+                    // Режим рисования: добавление точки полигона
                     const snappedX = Math.round(intersection.x);
                     const snappedZ = Math.round(intersection.z);
                     const newPoint = [snappedX, 0, snappedZ];
 
-                    // Prevent duplicate points
+                    // Проверка на дублирование последней точки
                     const lastPoint = props.gridPoints[props.gridPoints.length - 1];
                     if (
                         lastPoint &&
@@ -117,7 +114,7 @@ const Scene = (props) => {
                         return;
                     }
 
-                    // Check if point closes the shape
+                    // Проверка закрытия полигона
                     if (props.gridPoints.length >= 3) {
                         const firstPoint = props.gridPoints[0];
                         const distance = Math.sqrt(
@@ -125,19 +122,19 @@ const Scene = (props) => {
                             (newPoint[2] - firstPoint[2]) ** 2
                         );
                         if (distance < 0.5) {
-                            setIsShapeClosed(true);
+                            setIsShapeClosed(true); // Закрывает полигон
                             return;
                         }
                     }
 
-                    // Check for self-intersection
+                    // Проверка самопересечения
                     if (checkSelfIntersection(props.gridPoints, newPoint)) {
                         return;
                     }
 
-                    props.onPointAdded(newPoint);
+                    props.onPointAdded(newPoint); // Добавляет новую точку
                 } else if (props.isGridCreated && props.selectedModelType) {
-                    // Place model inside polygon
+                    // Режим размещения моделей
                     const snappedX = Math.round(intersection.x);
                     const snappedZ = Math.round(intersection.z);
                     const point = [snappedX, 0, snappedZ];
@@ -149,22 +146,24 @@ const Scene = (props) => {
                                 { position: point }
                             );
                             if (typeof props.onModelPlaced === 'function') {
-                                props.onModelPlaced();
+                                props.onModelPlaced(); // Уведомляет о размещении модели
                             }
                         }
                     }
                 }
             };
 
+            // Обработка клика ПКМ (удаление последней точки полигона)
             const handleRightClick = (event) => {
                 if (!props.isDrawing || event.button !== 2 || isShapeClosed) return;
                 event.preventDefault();
                 if (props.gridPoints.length > 0) {
                     const newPoints = props.gridPoints.slice(0, -1);
-                    props.onPointAdded(newPoints);
+                    props.onPointAdded(newPoints); // Удаляет последнюю точку
                 }
             };
 
+            // Регистрация обработчиков событий
             gl.domElement.addEventListener('mousedown', handleMouseDown);
             gl.domElement.addEventListener('contextmenu', handleRightClick);
             return () => {
@@ -182,48 +181,62 @@ const Scene = (props) => {
             props.onModelPlaced
         ]);
 
-        return null;
+        return null; // Компонент не рендерит визуальных элементов
     };
 
+    // Настройка управления камерой
     useEffect(() => {
         if (orbitControlRef.current) {
-            orbitControlRef.current.enableRotate = !props.isDrawing;
-            orbitControlRef.current.enablePan = !props.isDrawing;
-            orbitControlRef.current.enableZoom = true;
+            orbitControlRef.current.enableRotate = !props.isDrawing; // Отключает вращение в режиме рисования
+            orbitControlRef.current.enablePan = !props.isDrawing; // Отключает панорамирование в режиме рисования
+            orbitControlRef.current.enableZoom = true; // Масштабирование всегда активно
         }
     }, [props.isDrawing]);
 
+    // Обработка клавиш для управления трансформацией
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
-                props.onModelSelect(null);
-                setTransformMode('rotate');
-                setIsTransformActive(false);
-                setIsShapeClosed(false);
+                props.onModelSelect(null); // Сбрасывает выбор модели
+                setSelectedRef(null); // Очищает ссылку на объект
+                setTransformMode('translate'); // Устанавливает режим перетаскивания
+                setIsTransformActive(false); // Деактивирует трансформацию
+                setIsShapeClosed(false); // Сбрасывает закрытие полигона
+            }
+            if (e.key === 'w' || e.key === 'ц') {
+                setTransformMode('translate'); // Активирует режим перетаскивания
+                setIsTransformActive(!!selectedRef); // Активно, только если есть выбранный объект
             }
             if (e.key === 'r' || e.key === 'к') {
-                setTransformMode('rotate');
-                setIsTransformActive(true);
+                setTransformMode('rotate'); // Активирует режим вращения
+                setIsTransformActive(!!selectedRef);
             }
             if (e.key === 's' || e.key === 'ы') {
-                setTransformMode('scale');
-                setIsTransformActive(true);
+                setTransformMode('scale'); // Активирует режим масштабирования
+                setIsTransformActive(!!selectedRef);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [props.onModelSelect]);
+    }, [props.onModelSelect, selectedRef]);
 
+    // Рендеринг сцены
     return (
         <div style={{ position: 'relative' }}>
             <Canvas
                 orthographic
                 camera={{ position: [0, 100, 0], zoom: 30, near: 0.1 }}
-                onPointerMissed={() => !isDragging.current && !props.isDrawing && props.onModelSelect(null)}
-            >
-                <ambientLight intensity={0.5 * Math.PI} />
-                <pointLight position={[10, 10, -5]} />
-                <gridHelper args={[100, 100, 0x888888, 0x888888]} />
+                onPointerMissed={() => {
+                    if (!isDragging.current && !props.isDrawing) {
+                        props.onModelSelect(null); // Сбрасывает выбор модели
+                        setSelectedRef(null); // Очищает ссылку на объект
+                        setTransformMode('translate'); // Сбрасывает режим на перетаскивание
+                        setIsTransformActive(false); // Деактивирует трансформацию
+                    }
+                }}            >
+                <ambientLight intensity={0.5 * Math.PI} /> {/* Окружающее освещение */}
+                <pointLight position={[10, 10, -5]} /> {/* Точечный источник света */}
+                <gridHelper args={[100, 100, 0x888888, 0x888888]} /> {/* Сетка 100x100 */}
                 {(props.isGridCreated || props.isDrawing) && (
                     <CustomGrid
                         gridScale={props.gridScale}
@@ -235,6 +248,7 @@ const Scene = (props) => {
                     >
                         {props.isGridCreated &&
                             props.models.map((model) => {
+                                // Вычисление масштаба модели
                                 const finalScale = model.normalizedScale.map(
                                     (val, i) => val * model.baseScale[i]
                                 );
@@ -247,22 +261,27 @@ const Scene = (props) => {
                                         rotation={model.rotation}
                                         isSelected={model.id === props.selectedModelId}
                                         onRefReady={(ref) => {
-                                            if (model.id === props.selectedModelId) setSelectedRef(ref);
+                                            if (model.id === props.selectedModelId) {
+                                                setSelectedRef(ref); // Устанавливает ссылку на выбранную модель
+                                                setIsTransformActive(transformMode !== 'translate'); // Активирует трансформацию, если не translate
+                                            }
                                         }}
-                                        onClick={() => props.onModelSelect(model.id)}
+                                        onClick={() => {
+                                            props.onModelSelect(model.id); // Выбирает модель
+                                            setTransformMode('translate'); // Устанавливает режим перетаскивания
+                                            setIsTransformActive(false); // Деактивирует трансформацию при выборе
+                                        }}
                                         onDrag={(newPosition) => {
-                                            props.onModelUpdate(model.id, { position: newPosition });
+                                            props.onModelUpdate(model.id, { position: newPosition }); // Обновляет позицию
                                             if (model.id !== props.selectedModelId)
-                                                props.onModelSelect(model.id);
-                                        }}
-                                        onTransform={(newRotation) => {
-                                            props.onModelUpdate(model.id, { rotation: newRotation });
+                                                props.onModelSelect(model.id); // Выбирает модель, если не выбрана
                                         }}
                                         gridScale={props.gridScale}
                                         gridDivisions={props.gridDivisions}
                                         isGridCreated={props.isGridCreated}
                                         selectedModelType={props.selectedModelType}
                                         gridPoints={props.gridPoints}
+                                        transformMode={transformMode} // Передает режим трансформации
                                     />
                                 );
                             })}
@@ -274,11 +293,11 @@ const Scene = (props) => {
                     isActive={isTransformActive}
                     orbitControlRef={orbitControlRef}
                     onChangeStart={() => {
-                        isDragging.current = true;
+                        isDragging.current = true; // Начинает трансформацию
                     }}
                     onChangeEnd={() => {
                         setTimeout(() => {
-                            isDragging.current = false;
+                            isDragging.current = false; // Завершает трансформацию
                         }, 50);
                     }}
                     onScaleChange={(newScale) => {
@@ -290,14 +309,19 @@ const Scene = (props) => {
                                 const normalizedScale = newScale.map(
                                     (val, i) => val / selectedModel.baseScale[i]
                                 );
-                                props.onModelUpdate(props.selectedModelId, { normalizedScale });
+                                props.onModelUpdate(props.selectedModelId, { normalizedScale }); // Обновляет масштаб
                             }
                         }
                     }}
+                    onRotateChange={(newRotation) => {
+                        if (props.selectedModelId) {
+                            props.onModelUpdate(props.selectedModelId, { rotation: newRotation }); // Обновляет вращение
+                        }
+                    }}
                 />
-                <OrbitControls ref={orbitControlRef} makeDefault />
-                {props.isDrawing && <DrawingHandler />}
-                {props.isGridCreated && <DrawingHandler />}
+                <OrbitControls ref={orbitControlRef} makeDefault /> {/* Управление камерой */}
+                {props.isDrawing && <DrawingHandler />} {/* Обработчик рисования */}
+                {props.isGridCreated && <DrawingHandler />} {/* Обработчик размещения моделей */}
             </Canvas>
             {props.isGridCreated && (
                 <div style={{ position: 'absolute', top: 10, left: 10, color: 'white', background: 'rgba(0,0,0,0.5)', padding: 5 }}>

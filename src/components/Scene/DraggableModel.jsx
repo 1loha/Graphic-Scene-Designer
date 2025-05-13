@@ -1,16 +1,20 @@
 import { Clone, useGLTF } from "@react-three/drei";
 import React, { useEffect, useMemo, useRef } from "react";
 import { useDrag } from "./Grid";
-import { useFrame } from "@react-three/fiber";
+import { isPointInPolygon } from "./isPointInPolygon";
 
+// Компонент для перетаскиваемой 3D-модели
 export default function DraggableModel(props) {
+    // Ссылка на объект модели
     const ref = useRef();
+    // Текущие позиция и масштаб
     const pos = useRef(props.position || [0, 0, 0]);
-    const rot = useRef(props.rotation || [0, 0, 0]);
     const scl = useRef(props.scale || [1, 1, 1]);
 
+    // Загрузка 3D-модели из GLTF-файла
     const { scene } = useGLTF(props.modelPath);
 
+    // Клонирование сцены для предотвращения изменений оригинала
     const clonedScene = useMemo(() => {
         const clone = scene.clone(true);
         clone.traverse((child) => {
@@ -23,52 +27,27 @@ export default function DraggableModel(props) {
         return clone;
     }, [scene]);
 
-    // Point-in-polygon test
-    const isPointInPolygon = (point, vertices) => {
-        let inside = false;
-        const x = point[0], z = point[2];
-        for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
-            const xi = vertices[i][0], zi = vertices[i][2];
-            const xj = vertices[j][0], zj = vertices[j][2];
-            const intersect = ((zi > z) !== (zj > z)) &&
-                (x < (xj - xi) * (z - zi) / (zj - zi) + xi);
-            if (intersect) inside = !inside;
-        }
-        return inside;
-    };
-
+    // Обновление масштаба при изменении пропса
     useEffect(() => {
         scl.current = props.scale || [1, 1, 1];
     }, [props.scale]);
 
+    // Управление прозрачностью и передача ссылки на выбранную модель
     useEffect(() => {
         if (!ref.current) return;
         ref.current.traverse((child) => {
-            if (child.isMesh && child.material) child.material.opacity = props.isSelected ? 0.5 : 1.0;
+            if (child.isMesh && child.material) {
+                child.material.opacity = props.isSelected ? 0.5 : 1.0; // Полупрозрачность для выбранной модели
+            }
         });
-        if (props.isSelected && props.onRefReady) props.onRefReady(ref.current);
-        const handleTransform = () => {
-            if (ref.current && props.isSelected && props.onTransform) {
-                const newRotation = [
-                    ref.current.rotation.x,
-                    ref.current.rotation.y,
-                    ref.current.rotation.z
-                ];
-                rot.current = newRotation;
-                props.onTransform(newRotation);
-            }
-        };
+        if (props.isSelected && props.onRefReady) {
+            props.onRefReady(ref.current); // Передает ссылку родителю
+        }
+    }, [props.isSelected, props.onRefReady]);
 
-        if (props.isSelected) ref.current.addEventListener('objectChange', handleTransform);
-
-        return () => {
-            if (ref.current) {
-                ref.current.removeEventListener('objectChange', handleTransform);
-            }
-        };
-    }, [props.isSelected, props.onRefReady, props.onTransform]);
-
+    // Обработчик перетаскивания
     const handleDrag = ({ x, z }) => {
+        if (props.transformMode !== 'translate') return; // Перетаскивание только в режиме translate
         const newX = Math.round(x);
         const newZ = Math.round(z);
         const newPosition = [newX, props.position[1] || 0, newZ];
@@ -76,41 +55,38 @@ export default function DraggableModel(props) {
         if (isPointInPolygon(newPosition, props.gridPoints)) {
             console.log('Position valid, updating to:', newPosition);
             pos.current = newPosition;
-            props.onDrag(newPosition);
+            props.onDrag(newPosition); // Обновляет позицию
         } else {
             console.log('Position outside polygon, keeping last position:', pos.current);
         }
     };
 
-    const [events] = useDrag(handleDrag);
-
-    useFrame((_, delta) => {
-        if (!ref.current) return;
-
-        if (props.isSelected && props.onTransform) {
-            const newRotation = [
-                ref.current.rotation.x,
-                ref.current.rotation.y,
-                ref.current.rotation.z
-            ];
-            props.onTransform(newRotation);
-        }
+    // Настройка перетаскивания с помощью useDrag
+    const [events] = useDrag(handleDrag, {
+        enabled: props.isSelected && props.transformMode === 'translate' // Активирует перетаскивание только в нужном режиме
     });
+
+    // Условное применение событий мыши
+    const isTranslateMode = props.transformMode === 'translate';
+    const clickHandler = isTranslateMode
+        ? (e) => {
+            if (!props.isGridCreated || !props.selectedModelType) {
+                e.stopPropagation();
+                props.onClick(); // Выбирает модель при клике
+            }
+        }
+        : undefined;
+    const dragEvents = isTranslateMode ? events : {};
 
     return (
         <Clone
             ref={ref}
             object={clonedScene}
-            {...events}
+            {...dragEvents}
             position={props.position || [0, 0, 0]}
             rotation={props.rotation || [0, 0, 0]}
             scale={props.scale || [1, 1, 1]}
-            onClick={(e) => {
-                if (!props.isGridCreated || !props.selectedModelType) {
-                    e.stopPropagation();
-                    props.onClick();
-                }
-            }}
+            onClick={clickHandler}
         />
     );
 }
