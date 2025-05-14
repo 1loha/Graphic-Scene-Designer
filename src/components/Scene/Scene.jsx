@@ -234,7 +234,7 @@ const Scene = (props) => {
                         setIsTransformActive(false); // Деактивирует трансформацию
                     }
                 }}            >
-                <ambientLight intensity={0.5 * Math.PI} /> {/* Окружающее освещение */}
+                <ambientLight intensity={Math.PI} /> {/* Окружающее освещение */}
                 <pointLight position={[10, 10, -5]} /> {/* Точечный источник света */}
                 <gridHelper args={[100, 100, 0x888888, 0x888888]} /> {/* Сетка 100x100 */}
                 {(props.isGridCreated || props.isDrawing) && (
