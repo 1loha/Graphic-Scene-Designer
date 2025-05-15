@@ -5,22 +5,32 @@ import rightArrow from '../../../images/right_white.png';
 import DropdownObjects from "./DropdownObjects/DropdownObjects";
 import GridCreationDropdown from './GridCreationDropdown';
 
+// Компонент для отображения категории объектов
 const CatalogObjects = (props) => {
+    // Обработчик клика по выпадающему меню
     const handleDropdownClick = () => props.onToggle(props.nameCategory);
+
+    // Получение свойств кнопки (disabled и className)
+    const getButtonProps = () => {
+        const isDisabled =
+            (!props.isGridCreated && !props.isGridDropdown) ||
+            (props.isDrawingGrid && !props.isGridDropdown);
+        return {
+            disabled: isDisabled,
+            className: isDisabled ? s.disabledButton : ''
+        };
+    };
+
+    // Рендеринг категории
+    const { disabled, className } = getButtonProps();
+
     return (
         <div className={s.catalogObjects}>
+            {/* Кнопка категории */}
             <button
                 onClick={handleDropdownClick}
-                disabled={
-                    (!props.isGridCreated && !props.isGridDropdown) ||
-                    (props.isDrawingGrid && !props.isGridDropdown)
-                }
-                className={
-                    (!props.isGridCreated && !props.isGridDropdown) ||
-                    (props.isDrawingGrid && !props.isGridDropdown)
-                        ? s.disabledButton
-                        : ''
-                }
+                disabled={disabled}
+                className={className}
             >
                 <span className={s.buttonText}>{props.nameCategory}</span>
                 <span className={s.buttonIcon}>
@@ -31,6 +41,7 @@ const CatalogObjects = (props) => {
                     />
                 </span>
             </button>
+            {/* Выпадающее меню */}
             {props.isOpen &&
                 (props.isGridDropdown ? (
                     <GridCreationDropdown
@@ -43,6 +54,7 @@ const CatalogObjects = (props) => {
                         models={props.models}
                         category={props.category}
                         onSelectModelType={props.onSelectModelType}
+                        selectedModelType={props.selectedModelType}
                     />
                 ))}
         </div>

@@ -3,39 +3,38 @@ import { useThree } from '@react-three/fiber';
 import {useRef, useCallback, useEffect} from 'react';
 import * as THREE from "three";
 
-const v = new Vector3(); // Helper vector for calculations
-const p = new Plane(new Vector3(0, 1, 0), 0); // XZ plane at Y=0 for intersections
 
-// Handle dragging events
+// Хук для обработки перетаскивания
 export function useDrag(onDrag) {
+    const v = new Vector3();
+    const p = new Plane(new Vector3(0, 1, 0), 0);
     const { gl, camera, controls } = useThree();
     const isDragging = useRef(false);
     const raycaster = useRef(new THREE.Raycaster());
 
-    // Start dragging (disable camera controls)
+    // Начало перетаскивания
     const down = useCallback(
         (e) => {
             e.stopPropagation();
             isDragging.current = true;
-            if (controls) controls.enabled = false;
+            if (controls?.enabled !== undefined) controls.enabled = false;
             e.target.setPointerCapture(e.pointerId);
         },
         [controls]
     );
 
-    // End dragging
+    // Завершение перетаскивания
     const up = useCallback(
         (e) => {
             isDragging.current = false;
-            if (controls) controls.enabled = true;
+            if (controls?.enabled !== undefined) controls.enabled = true;
             e.target.releasePointerCapture(e.pointerId);
         },
         [controls]
     );
 
-    // Handle movement
-    const move = useCallback(
-        (e) => {
+    // Обработка движения мыши
+    const move = useCallback((e) => {
             if (!isDragging.current) return;
             e.stopPropagation();
 
@@ -51,7 +50,7 @@ export function useDrag(onDrag) {
         [onDrag, gl, camera]
     );
 
-    // Attach move and up listeners to the canvas
+    // Регистрация событий мыши
     useEffect(() => {
         gl.domElement.addEventListener('pointermove', move);
         gl.domElement.addEventListener('pointerup', up);
@@ -64,9 +63,8 @@ export function useDrag(onDrag) {
     return [{ onPointerDown: down, onPointerUp: up, onPointerMove: move }];
 }
 
-// Create grid
+// Компонент для создания сетки
 export function Grid({ children, gridScale, gridDivisions, ...props }) {
-    // References to grid and plane DOM elements
     const grid = useRef();
     const plane = useRef();
 

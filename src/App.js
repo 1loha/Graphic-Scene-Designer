@@ -7,6 +7,7 @@ import s from './App.module.css';
 import { AddModel } from './components/Scene/AddModel';
 import AuthModal from "./components/Header/Navbar/UserProfile/AuthModal";
 
+// Главный компонент приложения
 const App = (props) => {
     const [selectedModelId, setSelectedModelId] = useState(null);
     const [isGridCreated, setIsGridCreated] = useState(false);
@@ -16,25 +17,28 @@ const App = (props) => {
     const [resetDrawing, setResetDrawing] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
 
+    // Управление моделями
     const { models, addModel, updateModel, deleteModel } = AddModel({ state: props.state, isGridCreated });
 
-    const handleModelUpdate = (id, updates) => {
-        updateModel(id, updates);
-    };
+    // Обновление модели
+    const handleModelUpdate = (id, updates) => {updateModel(id, updates);};
 
+    // Создание новой сетки
     const handleCreateGrid = () => {
         setIsDrawingGrid(true);
         setGridPoints([]);
-        setIsGridCreated(false); // Reset grid created state
-        setResetDrawing(true); // Signal to reset drawing state
+        setIsGridCreated(false);
+        setResetDrawing(true);
     };
 
+    // Завершение создания сетки
     const handleGridCreated = (isCreated) => {
         setIsGridCreated(isCreated);
         setIsDrawingGrid(false);
-        setResetDrawing(false); // Clear reset signal
+        setResetDrawing(false);
     };
 
+    // Добавление точек сетки
     const handlePointAdded = (data) => {
         if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
             setGridPoints(data);
@@ -43,29 +47,27 @@ const App = (props) => {
         }
     };
 
+    // Выбор типа модели
     const handleSelectModelType = (category, type) => {
         setSelectedModelType({ category, type });
     };
 
-    const handleModelPlaced = () => {
-        setSelectedModelType(null);
-    };
+    // Размещение модели
+    const handleModelPlaced = () => { setSelectedModelType(null); };
 
+    // Удаление модели
     const handleDeleteModel = (id) => {
         deleteModel(id);
-        if (selectedModelId === id) {
-            setSelectedModelId(null);
-        }
+        if (selectedModelId === id) setSelectedModelId(null);
     };
 
-    const handleUserProfileClick = () => {
-        setShowAuthModal(true);
-    };
+    // Открытие модального окна авторизации
+    const handleUserProfileClick = () => { setShowAuthModal(true); };
 
-    const handleCloseModal = () => {
-        setShowAuthModal(false);
-    };
+    // Закрытие модального окна
+    const handleCloseModal = () => { setShowAuthModal(false); };
 
+    // Обработка нажатия клавиши Escape
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
@@ -74,17 +76,17 @@ const App = (props) => {
                     setGridPoints([]);
                     setResetDrawing(true);
                 }
-                if (showAuthModal) {
-                    setShowAuthModal(false);
-                }
+                if (showAuthModal) setShowAuthModal(false);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isDrawingGrid]);
+    }, [isDrawingGrid, showAuthModal]);
 
+    // Выбор текущей модели
     const selectedModel = models.find((model) => model.id === selectedModelId);
 
+    // Рендеринг компонентов приложения
     return (
         <div className={s.appWrapper}>
             <Header onUserProfileClick={handleUserProfileClick} />

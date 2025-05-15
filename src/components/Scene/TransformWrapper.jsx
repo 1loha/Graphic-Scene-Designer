@@ -2,62 +2,46 @@ import { useThree } from '@react-three/fiber';
 import { TransformControls } from '@react-three/drei';
 import { useEffect, useRef } from 'react';
 
-// Компонент для управления трансформацией (вращение и масштабирование)
-export const TransformWrapper = ({
-                                     selectedObject,
-                                     mode,
-                                     isActive,
+// Компонент для управления трансформацией объектов
+export const TransformWrapper = ({ selectedObject,
+                                     mode, isActive,
                                      orbitControlRef,
                                      onChangeStart,
                                      onChangeEnd,
                                      onScaleChange,
-                                     onRotateChange,
-                                 }) => {
-    // Доступ к камере и WebGL-контексту
+                                     onRotateChange,}) => {
+    // Доступ к сцене и ссылка на управление
     const { camera, gl } = useThree();
-    // Ссылка на TransformControls
     const controlsRef = useRef();
 
-    // Настройка TransformControls при изменении режима, объекта или активности
+    // Настройка TransformControls
     useEffect(() => {
         if (!controlsRef.current || !selectedObject) return;
         const controls = controlsRef.current;
 
         if (!isActive || (mode !== 'rotate' && mode !== 'scale')) {
-            controls.detach(); // Отключает управление, если неактивно или режим translate
+            controls.detach();
             if (orbitControlRef.current) orbitControlRef.current.enabled = true;
             return;
         }
 
-        // Настройка режима трансформации
         controls.setMode(mode);
-        // Показ осей для масштабирования
         controls.showX = mode === 'scale';
         controls.showY = mode === 'scale';
         controls.showZ = mode === 'scale';
-        // Для вращения — только ось Y
         if (mode === 'rotate') {
             controls.showX = false;
             controls.showY = true;
             controls.showZ = false;
         }
 
-        // Обработчики событий трансформации
         const handleChange = () => {
-            if (orbitControlRef.current) {
-                orbitControlRef.current.enabled = !controls.dragging; // Отключает OrbitControls во время трансформации
-            }
-            if (controls.dragging) {
-                console.log('TransformControls dragging:', mode); // Отладка
-                onChangeStart?.(); // Сигнализирует о начале трансформации
-            } else {
-                onChangeEnd?.(); // Сигнализирует о завершении
-            }
+            if (orbitControlRef.current) {orbitControlRef.current.enabled = !controls.dragging;}
+            if (controls.dragging) {onChangeStart?.();} else {onChangeEnd?.();}
         };
 
         const handleObjectChange = () => {
             if (controls.dragging && selectedObject) {
-                console.log('TransformControls objectChange:', mode, selectedObject.rotation.toArray(), selectedObject.scale.toArray()); // Отладка
                 onChangeStart?.();
                 if (mode === 'scale' && onScaleChange) {
                     const newScale = [
@@ -65,7 +49,7 @@ export const TransformWrapper = ({
                         selectedObject.scale.y,
                         selectedObject.scale.z,
                     ];
-                    onScaleChange(newScale); // Обновляет масштаб
+                    onScaleChange(newScale);
                 }
                 if (mode === 'rotate' && onRotateChange) {
                     const newRotation = [
@@ -73,11 +57,9 @@ export const TransformWrapper = ({
                         selectedObject.rotation.y,
                         selectedObject.rotation.z,
                     ];
-                    onRotateChange(newRotation); // Обновляет вращение
+                    onRotateChange(newRotation);
                 }
-            } else {
-                onChangeEnd?.();
-            }
+            } else onChangeEnd?.();
         };
 
         controls.addEventListener('dragging-changed', handleChange);
@@ -89,10 +71,8 @@ export const TransformWrapper = ({
         };
     }, [mode, selectedObject, isActive, orbitControlRef, onChangeStart, onChangeEnd, onScaleChange, onRotateChange]);
 
-    // Рендеринг TransformControls только для rotate и scale с активным объектом
-    if (!selectedObject || !isActive || (mode !== 'rotate' && mode !== 'scale')) {
-        return null;
-    }
+    // Рендеринг TransformControls
+    if (!selectedObject || !isActive || (mode !== 'rotate' && mode !== 'scale')) return null;
 
     return (
         <TransformControls

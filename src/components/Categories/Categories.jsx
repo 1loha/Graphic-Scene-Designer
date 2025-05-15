@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import s from './Categories.module.css';
 import CatalogObjects from './CatalogObjects/CatalogObjects';
 
+// Компонент для отображения категорий объектов
 const Categories = (props) => {
+    // Состояние для активной категории
     const [activeCategory, setActiveCategory] = useState(null);
 
+    // Переключение активной категории
     const handleCategoryToggle = (category) => {
         if (!props.isGridCreated && category !== 'createGrid') return;
         if (props.isDrawingGrid && category !== 'createGrid') return;
         setActiveCategory(activeCategory === category ? null : category);
     };
 
+    // Мемоизация списка категорий
+    const categoryKeys = useMemo(() => Object.keys(props.state), [props.state]);
+
+    // Рендеринг списка категорий
     return (
         <div className={s.catalogCategory}>
-            {Object.keys(props.state).map((category) => (
+            {categoryKeys.map((category) => (
                 <CatalogObjects
                     key={category}
                     nameCategory={props.state[category].displayName}

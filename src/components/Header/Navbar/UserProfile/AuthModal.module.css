@@ -50,8 +50,14 @@
     margin: 10px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Выравнивание по левому краю */
+    align-items: flex-start;
     width: 100%;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
 }
 
 .label {

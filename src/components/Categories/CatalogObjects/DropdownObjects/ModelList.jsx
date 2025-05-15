@@ -1,9 +1,13 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 
+// Компонент списка моделей
 const ModelList = (props) => {
+    // Мемоизация списка моделей
+    const modelEntries = useMemo(() => Object.entries(props.models), [props.models]);
+    // Рендеринг списка моделей
     return (
         <ul>
-            {Object.entries(props.models).map(([key, model]) => (
+            {modelEntries.map(([key, model]) => (
                 <li key={key}>
                     <button onClick={() => props.onSelectModelType(props.category, key)}>
                         {model.label || key}
