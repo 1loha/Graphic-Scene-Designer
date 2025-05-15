@@ -17,8 +17,8 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
 
     // Загрузка текстур (заглушки: цвета, можно заменить на реальные текстуры)
-    const floorTexture = useLoader(THREE.TextureLoader, floor); // Замените на вашу текстуру пола
-    const wallTexture = useLoader(THREE.TextureLoader, wall); // Замените на вашу текстуру стены
+    const floorTexture = useLoader(THREE.TextureLoader, floor);
+    const wallTexture = useLoader(THREE.TextureLoader, wall);
 
     // Материалы для пола и стен
     const floorMaterial = new THREE.MeshStandardMaterial({

@@ -3,7 +3,7 @@ import s from './Header.module.css';
 import Navbar from "./Navbar/Navbar";
 import logo from '../../images/plan_white.png'
 
-const Header = () => {
+const Header = (props) => {
     return (
         <header className={s.header}>
             {/*логотип*/}
@@ -11,7 +11,7 @@ const Header = () => {
             {/*название приложения*/}
             <span>3D Planer</span>
             {/*навигационная панель*/}
-            <Navbar />
+            <Navbar onUserProfileClick={props.onUserProfileClick} />
         </header>
     )
 }

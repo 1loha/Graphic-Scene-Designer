@@ -5,6 +5,7 @@ import Scene from './components/Scene/Scene';
 import Properties from './components/Properties/Properties';
 import s from './App.module.css';
 import { AddModel } from './components/Scene/AddModel';
+import AuthModal from "./components/Header/Navbar/UserProfile/AuthModal";
 
 const App = (props) => {
     const [selectedModelId, setSelectedModelId] = useState(null);
@@ -12,7 +13,8 @@ const App = (props) => {
     const [isDrawingGrid, setIsDrawingGrid] = useState(false);
     const [gridPoints, setGridPoints] = useState([]);
     const [selectedModelType, setSelectedModelType] = useState(null);
-    const [resetDrawing, setResetDrawing] = useState(false); // New state to signal reset
+    const [resetDrawing, setResetDrawing] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
 
     const { models, addModel, updateModel, deleteModel } = AddModel({ state: props.state, isGridCreated });
 
@@ -56,12 +58,25 @@ const App = (props) => {
         }
     };
 
+    const handleUserProfileClick = () => {
+        setShowAuthModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowAuthModal(false);
+    };
+
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.key === 'Escape' && isDrawingGrid) {
-                setIsDrawingGrid(false);
-                setGridPoints([]);
-                setResetDrawing(true); // Reset drawing on Escape
+            if (e.key === 'Escape') {
+                if (isDrawingGrid) {
+                    setIsDrawingGrid(false);
+                    setGridPoints([]);
+                    setResetDrawing(true);
+                }
+                if (showAuthModal) {
+                    setShowAuthModal(false);
+                }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -72,7 +87,7 @@ const App = (props) => {
 
     return (
         <div className={s.appWrapper}>
-            <Header />
+            <Header onUserProfileClick={handleUserProfileClick} />
             <Categories
                 addModel={addModel}
                 state={props.state}
@@ -97,7 +112,7 @@ const App = (props) => {
                 addModel={addModel}
                 selectedModelType={selectedModelType}
                 onModelPlaced={handleModelPlaced}
-                resetDrawing={resetDrawing} // Pass reset signal
+                resetDrawing={resetDrawing}
             />
             <Properties
                 selectedModel={selectedModel}
@@ -121,6 +136,7 @@ const App = (props) => {
                 }}
                 onDelete={handleDeleteModel}
             />
+            {showAuthModal && <AuthModal onClick={handleCloseModal}/>}
         </div>
     );
 };
