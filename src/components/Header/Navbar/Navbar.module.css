@@ -16,6 +16,7 @@
 
 .navButton {
     background: blue;
+    color: white;
     border: none;
     padding: 0;
     cursor: pointer;

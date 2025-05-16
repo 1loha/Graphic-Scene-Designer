@@ -6,8 +6,8 @@ import Properties from './components/Properties/Properties';
 import s from './App.module.css';
 import { AddModel } from './components/Scene/AddModel';
 import AuthModal from "./components/Header/Navbar/UserProfile/AuthModal";
+import SaveLoadProject from './SaveLoadProject';
 
-// Главный компонент приложения
 const App = (props) => {
     const [selectedModelId, setSelectedModelId] = useState(null);
     const [isGridCreated, setIsGridCreated] = useState(false);
@@ -16,12 +16,34 @@ const App = (props) => {
     const [selectedModelType, setSelectedModelType] = useState(null);
     const [resetDrawing, setResetDrawing] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
+    const [projectId, setProjectId] = useState(null);
+    const [projectName, setProjectName] = useState('My Project');
 
     // Управление моделями
-    const { models, addModel, updateModel, deleteModel } = AddModel({ state: props.state, isGridCreated });
+    const { models, addModel, updateModel, deleteModel, setModels } = AddModel({ state: props.state, isGridCreated });
+
+    // Хук для сохранения и загрузки проекта
+    const { saveProject, loadProject } = SaveLoadProject({
+        projectId,
+        setProjectId,
+        projectName,
+        setProjectName,
+        gridPoints,
+        setGridPoints,
+        isGridCreated,
+        setIsGridCreated,
+        isDrawingGrid,
+        setIsDrawingGrid,
+        resetDrawing,
+        setResetDrawing,
+        models,
+        setModels,
+        gridScale: props.gridScale,
+        gridDivisions: props.gridDivisions
+    });
 
     // Обновление модели
-    const handleModelUpdate = (id, updates) => {updateModel(id, updates);};
+    const handleModelUpdate = (id, updates) => { updateModel(id, updates); };
 
     // Создание новой сетки
     const handleCreateGrid = () => {
@@ -89,7 +111,11 @@ const App = (props) => {
     // Рендеринг компонентов приложения
     return (
         <div className={s.appWrapper}>
-            <Header onUserProfileClick={handleUserProfileClick} />
+            <Header
+                onUserProfileClick={handleUserProfileClick}
+                onSaveProject={saveProject}
+                onLoadProject={loadProject}
+            />
             <Categories
                 addModel={addModel}
                 state={props.state}
@@ -138,7 +164,7 @@ const App = (props) => {
                 }}
                 onDelete={handleDeleteModel}
             />
-            {showAuthModal && <AuthModal onClick={handleCloseModal}/>}
+            {showAuthModal && <AuthModal onClick={handleCloseModal} />}
         </div>
     );
 };

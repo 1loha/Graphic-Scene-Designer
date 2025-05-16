@@ -41,5 +41,5 @@ export const AddModel = (props) => {
     };
 
     // Возврат функций управления моделями
-    return { models, addModel, updateModel, deleteModel };
+    return { models, addModel, updateModel, deleteModel, setModels };
 };

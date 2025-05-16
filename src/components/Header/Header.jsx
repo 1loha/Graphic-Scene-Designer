@@ -4,7 +4,7 @@ import Navbar from "./Navbar/Navbar";
 import logo from '../../images/plan_white.png';
 
 // Компонент заголовка приложения
-const Header = (props) => {
+const Header = ({ onUserProfileClick, onSaveProject, onLoadProject }) => {
     // Рендеринг заголовка
     return (
         <header className={s.header}>
@@ -13,7 +13,11 @@ const Header = (props) => {
             {/* Название приложения */}
             <span>3D Planer</span>
             {/* Навигационная панель */}
-            <Navbar onUserProfileClick={props.onUserProfileClick} />
+            <Navbar
+                onUserProfileClick={onUserProfileClick}
+                onSaveProject={onSaveProject}
+                onLoadProject={onLoadProject}
+            />
         </header>
     );
 };
