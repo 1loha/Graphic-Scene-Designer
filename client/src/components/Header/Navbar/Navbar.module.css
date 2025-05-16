@@ -1,0 +1,33 @@
+.navbar {
+    margin-left: auto;
+}
+
+.navbar ul {
+    display: flex;
+    list-style: none;
+    margin-right: 30px;
+    padding: 0;
+    gap: 70px;
+}
+
+.navbar img {
+    width: 70px;
+}
+
+.navButton {
+    background: blue;
+    color: white;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.navButton:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+
+.navButton:focus {
+    outline: none;
+}

@@ -1,0 +1,65 @@
+.properties {
+    user-select: none;
+    grid-area: p;
+    background-color: #f0f0f0 ;
+    color: black;
+    font-size: 30px;
+    text-align: center;
+    padding-top: 16px;
+}
+
+.properties .position, .rotation, .scale{
+    margin: 20px;
+    font-size: 22px;
+}
+
+.properties .position div {
+    padding-top: 10px;
+    display: flex;
+}
+
+.properties .scale div {
+    padding-top: 10px;
+    display: flex;
+}
+
+.properties .deleteButton {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fd1f1f;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    width: 70%;
+    height: 40px;
+}
+
+.properties .deleteButton:hover {
+    background-color: #cc0000;
+}
+/*убирает инкремент и декремент для свойств*/
+input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.properties div input {
+    /*appearance: none;*/
+    margin-left: 20px;
+    margin-right: 10px;
+    width: 70px;
+    height: 40px;
+    background-color: blue;
+    color: white;
+    border: 0;
+    border-radius: 10px;
+    font-size: 20px;
+    text-align: center;
+}
+
+input::selection {
+    background: white;
+    color: black;
+}
+

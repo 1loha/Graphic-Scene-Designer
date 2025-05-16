@@ -1,0 +1,16 @@
+.scene {
+    grid-area: s;
+    background-color: whitesmoke;
+}
+
+.scene canvas {
+    cursor: default;
+}
+
+.scene.model-placing canvas {
+    cursor: crosshair;
+}
+
+.scene canvas:active {
+    cursor: grabbing;
+}

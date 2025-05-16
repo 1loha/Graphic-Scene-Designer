@@ -1,0 +1,18 @@
+.dropdownObjects {
+}
+
+.dropdownObjects ul {
+    list-style: none;
+    padding: 8px;
+    margin: 0;
+}
+
+.dropdownObjects li:hover {
+    /*cursor: pointer;*/
+}
+
+.dropdownObjects ul li button {
+    font-size: 24px;
+
+}
+
