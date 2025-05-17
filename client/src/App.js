@@ -6,21 +6,29 @@ import Properties from './components/Properties/Properties';
 import s from './App.module.css';
 import { AddModel } from './components/Scene/AddModel';
 import AuthModal from "./components/Header/Navbar/UserProfile/AuthModal";
-import useSaveLoadProject from './useSaveLoadProject';
+import useSaveLoadProject from './hooks/useSaveLoadProject';
 
+// Главный компонент приложения
 const App = (props) => {
+    // Состояния для управления сценой и моделями
     const [selectedModelId, setSelectedModelId] = useState(null);
     const [isGridCreated, setIsGridCreated] = useState(false);
     const [isDrawingGrid, setIsDrawingGrid] = useState(false);
     const [gridPoints, setGridPoints] = useState([]);
     const [selectedModelType, setSelectedModelType] = useState(null);
     const [resetDrawing, setResetDrawing] = useState(false);
+    // Состояние для управления модальным окном авторизации
     const [showAuthModal, setShowAuthModal] = useState(false);
+    // Состояния для управления проектом
     const [projectId, setProjectId] = useState(null);
     const [projectName, setProjectName] = useState('My Project');
+    // Состояние для отслеживания авторизации
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
 
+    // Хук для управления моделями
     const { models, addModel, updateModel, deleteModel, setModels } = AddModel({ state: props.state, isGridCreated });
 
+    // Хук для сохранения и загрузки проектов
     const { saveProject, loadProject } = useSaveLoadProject({
         projectId,
         setProjectId,
@@ -38,8 +46,10 @@ const App = (props) => {
         setModels
     });
 
+    // Обновление параметров модели
     const handleModelUpdate = (id, updates) => { updateModel(id, updates); };
 
+    // Создание новой сетки
     const handleCreateGrid = () => {
         setIsDrawingGrid(true);
         setGridPoints([]);
@@ -47,12 +57,14 @@ const App = (props) => {
         setResetDrawing(true);
     };
 
+    // Завершение создания сетки
     const handleGridCreated = (isCreated) => {
         setIsGridCreated(isCreated);
         setIsDrawingGrid(false);
         setResetDrawing(false);
     };
 
+    // Добавление точки к сетке
     const handlePointAdded = (data) => {
         if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
             setGridPoints(data);
@@ -61,21 +73,40 @@ const App = (props) => {
         }
     };
 
+    // Выбор типа модели
     const handleSelectModelType = (category, type) => {
         setSelectedModelType({ category, type });
     };
 
+    // Завершение размещения модели
     const handleModelPlaced = () => { setSelectedModelType(null); };
 
+    // Удаление модели
     const handleDeleteModel = (id) => {
         deleteModel(id);
         if (selectedModelId === id) setSelectedModelId(null);
     };
 
+    // Действие пользователя: Открытие формы авторизации/регистрации
     const handleUserProfileClick = () => { setShowAuthModal(true); };
 
+    // Закрытие формы авторизации/регистрации
     const handleCloseModal = () => { setShowAuthModal(false); };
 
+    // Обработка успешного входа
+    const handleLoginSuccess = () => {
+        setIsAuthenticated(true);
+        setShowAuthModal(false);
+    };
+
+    // Обработка выхода
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userId');
+        setIsAuthenticated(false);
+    };
+
+    // Обработка нажатия клавиши Escape
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
@@ -91,14 +122,18 @@ const App = (props) => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isDrawingGrid, showAuthModal]);
 
+    // Поиск выбранной модели
     const selectedModel = models.find((model) => model.id === selectedModelId);
 
+    // Рендеринг компонентов приложения
     return (
         <div className={s.appWrapper}>
             <Header
                 onUserProfileClick={handleUserProfileClick}
                 onSaveProject={saveProject}
                 onLoadProject={loadProject}
+                isAuthenticated={isAuthenticated}
+                onLogout={handleLogout}
             />
             <Categories
                 addModel={addModel}
@@ -148,7 +183,7 @@ const App = (props) => {
                 }}
                 onDelete={handleDeleteModel}
             />
-            {showAuthModal && <AuthModal onClick={handleCloseModal} />}
+            {showAuthModal && <AuthModal onClick={handleCloseModal} onLoginSuccess={handleLoginSuccess} />}
         </div>
     );
 };

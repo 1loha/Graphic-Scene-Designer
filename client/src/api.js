@@ -1,13 +1,17 @@
+// Базовый URL для API-запросов
 const API_BASE_URL = 'http://localhost:5000/api';
 
+// Получение токена авторизации из localStorage
 const getAuthToken = () => {
     return localStorage.getItem('authToken') || '';
 };
 
+// Получение ID пользователя из localStorage
 const getUserId = () => {
     return localStorage.getItem('userId') || 'user-id-placeholder';
 };
 
+// Функция регистрации пользователя
 export const register = async (username, password) => {
     try {
         const response = await fetch(`${API_BASE_URL}/register`, {
@@ -28,6 +32,7 @@ export const register = async (username, password) => {
     }
 };
 
+// Функция входа пользователя
 export const login = async (username, password) => {
     try {
         const response = await fetch(`${API_BASE_URL}/login`, {
@@ -48,6 +53,7 @@ export const login = async (username, password) => {
     }
 };
 
+// Функция сохранения проекта
 export const saveProject = async (projectData) => {
     try {
         const token = getAuthToken();
@@ -70,6 +76,7 @@ export const saveProject = async (projectData) => {
     }
 };
 
+// Функция обновления проекта
 export const updateProject = async (projectId, projectData) => {
     try {
         const token = getAuthToken();
@@ -92,6 +99,7 @@ export const updateProject = async (projectId, projectData) => {
     }
 };
 
+// Функция загрузки проекта
 export const loadProject = async (projectId) => {
     try {
         const token = getAuthToken();
@@ -112,6 +120,7 @@ export const loadProject = async (projectId) => {
     }
 };
 
+// Функция получения всех проектов пользователя
 export const getUserProjects = async () => {
     try {
         const token = getAuthToken();

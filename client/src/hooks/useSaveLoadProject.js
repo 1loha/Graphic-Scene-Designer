@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import { saveProject as saveProjectApi, updateProject, loadProject as loadProjectApi } from './api';
+import { saveProject as saveProjectApi, updateProject, loadProject as loadProjectApi } from '../api';
 
+// Хук для сохранения и загрузки проектов
 const useSaveLoadProject = ({
                                 projectId,
                                 setProjectId,
@@ -17,14 +18,17 @@ const useSaveLoadProject = ({
                                 models,
                                 setModels
                             }) => {
+    // Получение userId из localStorage
     const getUserId = () => {
         return localStorage.getItem('userId') || 'user-id-placeholder';
     };
 
+    // Функция сохранения проекта
     const saveProject = async () => {
         try {
+            // Формирование данных проекта
             const projectData = {
-                projectId: projectId || uuidv4(),
+                projectId: projectId || uuidv4(), // Генерация ID, если не существует
                 userId: getUserId(),
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
@@ -43,6 +47,9 @@ const useSaveLoadProject = ({
                     baseScale: model.baseScale
                 }))
             };
+            // Логирование данных для отладки
+            console.log('Отправляемые данные проекта:', JSON.stringify(projectData, null, 2));
+            // Обновление или создание проекта
             const response = projectId
                 ? await updateProject(projectId, projectData)
                 : await saveProjectApi(projectData);
@@ -55,9 +62,11 @@ const useSaveLoadProject = ({
         }
     };
 
+    // Функция загрузки проекта
     const loadProject = async (projectId) => {
         try {
             const projectData = await loadProjectApi(projectId);
+            // Обновление состояния приложения
             setProjectId(projectData.projectId);
             setProjectName(projectData.name);
             setGridPoints(projectData.grid.points);

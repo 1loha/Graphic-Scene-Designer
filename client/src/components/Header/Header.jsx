@@ -4,7 +4,7 @@ import Navbar from "./Navbar/Navbar";
 import logo from '../../images/plan_white.png';
 
 // Компонент заголовка приложения
-const Header = ({ onUserProfileClick, onSaveProject, onLoadProject }) => {
+const Header = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthenticated, onLogout }) => {
     // Рендеринг заголовка
     return (
         <header className={s.header}>
@@ -17,6 +17,8 @@ const Header = ({ onUserProfileClick, onSaveProject, onLoadProject }) => {
                 onUserProfileClick={onUserProfileClick}
                 onSaveProject={onSaveProject}
                 onLoadProject={onLoadProject}
+                isAuthenticated={isAuthenticated}
+                onLogout={onLogout}
             />
         </header>
     );

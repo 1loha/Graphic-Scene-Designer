@@ -87,6 +87,12 @@
     opacity: 0.9;
 }
 
+.success {
+    color: green;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
 .modal h2 {
     font-size: 30px;
     color: white;
