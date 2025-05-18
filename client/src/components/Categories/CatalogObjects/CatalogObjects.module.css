@@ -40,3 +40,8 @@
     height: 90%;
     object-fit: contain;
 }
+
+.catalogObjects button.disabledButton {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
