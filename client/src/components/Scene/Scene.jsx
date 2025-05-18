@@ -15,16 +15,29 @@ const Scene = (props) => {
     const [selectedRef, setSelectedRef] = useState(null);
     const [transformMode, setTransformMode] = useState('translate');
     const [isTransformActive, setIsTransformActive] = useState(false);
-    const [isShapeClosed, setIsShapeClosed] = useState(false);
+    const [isShapeClosed, setIsShapeClosed] = useState(props.isGridCreated);
+
+    // Синхронизация isShapeClosed с props.isGridCreated
+    useEffect(() => {
+        setIsShapeClosed(props.isGridCreated);
+    }, [props.isGridCreated]);
 
     // Сброс полигона при новом рисовании
     useEffect(() => {
         if (props.resetDrawing) setIsShapeClosed(false);
     }, [props.resetDrawing]);
 
+    // Логирование для диагностики
+    useEffect(() => {
+        console.log('Scene props:', { gridPoints: props.gridPoints, isGridCreated: props.isGridCreated, isShapeClosed });
+    }, [props.gridPoints, props.isGridCreated, isShapeClosed]);
+
     // Обработка завершения формы полигона
     const handleShapeComplete = (isComplete) => {
-        if (isComplete) props.onGridCreated(true);
+        if (isComplete) {
+            setIsShapeClosed(true);
+            props.onGridCreated(true);
+        }
     };
 
     // Компонент для обработки событий мыши
@@ -83,7 +96,11 @@ const Scene = (props) => {
                             (newPoint[0] - firstPoint[0]) ** 2 +
                             (newPoint[2] - firstPoint[2]) ** 2
                         );
-                        if (distance < 0.5) { setIsShapeClosed(true); return; }
+                        if (distance < 0.5) {
+                            setIsShapeClosed(true);
+                            props.onGridCreated(true);
+                            return;
+                        }
                     }
 
                     if (checkSelfIntersection(props.gridPoints, newPoint)) return;
@@ -186,8 +203,9 @@ const Scene = (props) => {
                     }
                 }}
             >
-                <ambientLight intensity={Math.PI} />
-                <pointLight position={[10, 10, -5]} />
+                <ambientLight intensity={4} /> {/* Увеличено для яркости */}
+                <pointLight position={[0, 50, 0]} intensity={5} /> {/* Центрированное освещение */}
+                <directionalLight position={[10, 20, 10]} intensity={2} /> {/* Дополнительный свет */}
                 <gridHelper args={[100, 100, 0x888888, 0x888888]} />
                 {(props.isGridCreated || props.isDrawing) && (
                     <CustomGrid
@@ -243,10 +261,11 @@ const Scene = (props) => {
                     mode={transformMode}
                     isActive={isTransformActive}
                     orbitControlRef={orbitControlRef}
-                    onChangeStart={() => {isDragging.current = true;}}
+                    onChangeStart={() => { isDragging.current = true; }}
                     onChangeEnd={() => {
                         setTimeout(() => {
-                            isDragging.current = false;}, 50);
+                            isDragging.current = false;
+                        }, 50);
                     }}
                     onScaleChange={(newScale) => {
                         if (props.selectedModelId) {
@@ -268,7 +287,8 @@ const Scene = (props) => {
                     }}
                 />
                 <OrbitControls ref={orbitControlRef} makeDefault />
-                {(props.isDrawing || props.isGridCreated) && <DrawingHandler />}            </Canvas>
+                {(props.isDrawing || props.isGridCreated) && <DrawingHandler />}
+            </Canvas>
             {props.isGridCreated && (
                 <div style={{ position: 'absolute', top: 10, left: 10, color: 'white', background: 'rgba(0,0,0,0.5)', padding: 5 }}>
                     Выберите объект из категорий и расположите внутри сцены

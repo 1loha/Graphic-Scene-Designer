@@ -9,8 +9,13 @@ const Categories = (props) => {
 
     // Переключение активной категории
     const handleCategoryToggle = (category) => {
-        if (!props.isGridCreated && category !== 'createGrid') return;
-        if (props.isDrawingGrid && category !== 'createGrid') return;
+        console.log('Toggle category:', {
+            category,
+            isGridCreated: props.isGridCreated,
+            isDrawingGrid: props.isDrawingGrid,
+            activeCategoryBefore: activeCategory
+        });
+        // Временное отключение строгих условий для тестирования
         setActiveCategory(activeCategory === category ? null : category);
     };
 

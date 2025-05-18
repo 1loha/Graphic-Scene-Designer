@@ -19,14 +19,25 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
     // Загрузка текстур и создание материалов для пола и стен
     const floorTexture = useLoader(THREE.TextureLoader, floor);
     const wallTexture = useLoader(THREE.TextureLoader, wall);
+
+    // Настройка текстур: повторение и смещение
+    if (floorTexture) {
+        floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+        floorTexture.repeat.set(0.1, 0.1); // Масштаб текстуры для пола
+    }
+    if (wallTexture) {
+        wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
+        wallTexture.repeat.set(0.5, 0.2); // Масштаб текстуры для стен (0.5 по длине, 0.2 по высоте)
+    }
+
     const floorMaterial = new THREE.MeshStandardMaterial({
         map: floorTexture || null,
-        color: floorTexture ? 0xffffff : 0xcccccc,
+        color: 0xffffff, // Белый цвет для максимальной яркости текстуры
         side: THREE.DoubleSide,
     });
     const wallMaterial = new THREE.MeshStandardMaterial({
         map: wallTexture || null,
-        color: wallTexture ? 0xffffff : 0x888888,
+        color: 0xffffff, // Белый цвет для максимальной яркости текстуры
         side: THREE.DoubleSide,
     });
 
@@ -34,16 +45,10 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
     useEffect(() => {
         const group = groupRef.current;
         const points = new THREE.Points(pointsGeometryRef.current, pointMaterial);
-        group.add(points);
         const lines = new THREE.Line(linesGeometryRef.current, lineMaterial);
-        group.add(lines);
-        group.add(wallsGroupRef.current);
-        pointsGeometryRef.current.setAttribute('position',
-            new THREE.Float32BufferAttribute([], 3)
-        );
-        linesGeometryRef.current.setAttribute('position',
-            new THREE.Float32BufferAttribute([], 3)
-        );
+        group.add(points, lines, wallsGroupRef.current);
+        pointsGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute([], 3));
+        linesGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute([], 3));
 
         return () => {
             group.remove(points, lines, wallsGroupRef.current);
@@ -53,24 +58,37 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
 
     // Обновление точек, линий, пола и стен
     useEffect(() => {
-        const points = gridPoints.flat();
-        if (points.length > 0 && points.length % 3 !== 0) return;
+        console.log('CustomGrid props:', { gridPoints, isShapeClosed });
 
-        pointsGeometryRef.current.setAttribute('position',
-            new THREE.Float32BufferAttribute(points, 3)
-        );
+        // Проверка валидности gridPoints
+        if (!Array.isArray(gridPoints) || gridPoints.length === 0) {
+            pointsGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute([], 3));
+            linesGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute([], 3));
+            if (floorMeshRef.current) {
+                groupRef.current.remove(floorMeshRef.current);
+                floorMeshRef.current = null;
+            }
+            while (wallsGroupRef.current.children.length > 0) {
+                wallsGroupRef.current.remove(wallsGroupRef.current.children[0]);
+            }
+            return;
+        }
+
+        // Обновление точек
+        const points = gridPoints.flat();
+        pointsGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
         pointsGeometryRef.current.needsUpdate = true;
 
-        const linePoints = isShapeClosed && points.length >= 9 ?
-            [...points, points[0], points[1], points[2]]: points;
-        linesGeometryRef.current.setAttribute('position',
-            new THREE.Float32BufferAttribute(linePoints, 3)
-        );
+        // Обновление линий
+        const linePoints = isShapeClosed && gridPoints.length >= 3
+            ? [...points, points[0], points[1], points[2]]
+            : points;
+        linesGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute(linePoints, 3));
         linesGeometryRef.current.needsUpdate = true;
 
+        // Обновление пола и стен
         if (isShapeClosed && gridPoints.length >= 3) {
-            if (gridPoints.length === 0) return;
-
+            // Создание пола
             const shape = new THREE.Shape();
             gridPoints.forEach(([x, , z], i) => {
                 if (i === 0) shape.moveTo(x, z);
@@ -82,16 +100,16 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
             floorMesh.rotation.x = Math.PI / 2;
             groupRef.current.add(floorMesh);
             if (floorMeshRef.current) groupRef.current.remove(floorMeshRef.current);
-
             floorMeshRef.current = floorMesh;
 
-            wallsGroupRef.current.children.forEach((child) => {
-                wallsGroupRef.current.remove(child);
-            });
+            // Очистка старых стен
+            while (wallsGroupRef.current.children.length > 0) {
+                wallsGroupRef.current.remove(wallsGroupRef.current.children[0]);
+            }
 
-            const wallHeight = 3;
-            const wallThickness = 0.2;
-
+            // Создание стен
+            const wallHeight = 10;
+            const wallThickness = 0.4;
             for (let i = 0; i < gridPoints.length; i++) {
                 const p1 = gridPoints[i];
                 const p2 = gridPoints[(i + 1) % gridPoints.length];
@@ -102,18 +120,26 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
                 const length = Math.sqrt((x2 - x1) ** 2 + (z2 - z1) ** 2);
                 const centerX = (x1 + x2) / 2;
                 const centerZ = (z1 + z2) / 2;
-
                 const angle = -Math.atan2(z2 - z1, x2 - x1);
 
                 const wallGeometry = new THREE.BoxGeometry(length, wallHeight, wallThickness);
                 const wallMesh = new THREE.Mesh(wallGeometry, wallMaterial);
-
                 wallMesh.position.set(centerX, wallHeight / 2, centerZ);
                 wallMesh.rotation.y = angle;
                 wallsGroupRef.current.add(wallMesh);
             }
 
-            onShapeComplete(true);
+            // Вызов onShapeComplete только при первом создании
+            if (!floorMeshRef.current) onShapeComplete(true);
+        } else {
+            // Очистка пола и стен, если форма не замкнута
+            if (floorMeshRef.current) {
+                groupRef.current.remove(floorMeshRef.current);
+                floorMeshRef.current = null;
+            }
+            while (wallsGroupRef.current.children.length > 0) {
+                wallsGroupRef.current.remove(wallsGroupRef.current.children[0]);
+            }
         }
     }, [gridPoints, isShapeClosed, onShapeComplete]);
 

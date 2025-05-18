@@ -4,6 +4,7 @@ import settingsIcon from '../../../images/settings_white.png';
 import supportIcon from '../../../images/support_white.png';
 import userProfileIcon from '../../../images/user-profile_white.png';
 import saveIcon from '../../../images/save_white.png';
+import logoutIcon from '../../../images/logout_white.png';
 import ProjectSelector from './ProjectSelector';
 
 // Навигационная панель приложения
@@ -35,7 +36,11 @@ const Navbar = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthentica
                 </li>
                 {/* Селектор проектов */}
                 <li>
-                    <ProjectSelector onLoadProject={onLoadProject} />
+                    <ProjectSelector
+                        onLoadProject={onLoadProject}
+                        onUserProfileClick={onUserProfileClick}
+                        isAuthenticated={isAuthenticated}
+                    />
                 </li>
                 {/* Кнопка профиля или выхода */}
                 <li>
@@ -47,7 +52,7 @@ const Navbar = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthentica
                             aria-label="Logout"
                             title="Выйти"
                         >
-                            Выйти
+                            <img src={logoutIcon} alt="logout" />
                         </button>
                     ) : (
                         // Действие пользователя: Открыть форму авторизации/регистрации

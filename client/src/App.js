@@ -43,7 +43,8 @@ const App = (props) => {
         resetDrawing,
         setResetDrawing,
         models,
-        setModels
+        setModels,
+        openAuthModal: () => setShowAuthModal(true)
     });
 
     // Обновление параметров модели
@@ -121,6 +122,11 @@ const App = (props) => {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isDrawingGrid, showAuthModal]);
+
+    // Логирование для проверки пропсов Scene
+    useEffect(() => {
+        console.log('App state:', { gridPoints, isGridCreated });
+    }, [gridPoints, isGridCreated]);
 
     // Поиск выбранной модели
     const selectedModel = models.find((model) => model.id === selectedModelId);

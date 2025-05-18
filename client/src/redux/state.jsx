@@ -35,6 +35,43 @@ let store = {
                 lamp: { label: 'Лампа', path: '/models/office_lamp/scene.gltf', scale: xs },
             },
         },
+        kitchen: {
+            displayName: 'Кухня',
+            models: {
+                steve: { label: 'Стив', path: '/models/steve/source/model.gltf', scale: m },
+            },
+        },
+        appliances: {
+            displayName: 'Техника',
+            models: {
+                steve: { label: 'Стив', path: '/models/steve/source/model.gltf', scale: m },
+            },
+        },
+        livingRoom: {
+            displayName: 'Гостиная',
+            models: {
+                steve: { label: 'Стив', path: '/models/steve/source/model.gltf', scale: m },
+            },
+        },
+        childrenRoom: {
+            displayName: 'Детская',
+            models: {
+                steve: { label: 'Стив', path: '/models/steve/source/model.gltf', scale: m },
+            },
+        },
+        hallway: {
+            displayName: 'Прихожая',
+            models: {
+                steve: { label: 'Стив', path: '/models/steve/source/model.gltf', scale: m },
+            },
+        },
+        decorations: {
+            displayName: 'Декорации',
+            models: {
+                steve: { label: 'Стив', path: '/models/steve/source/model.gltf', scale: m },
+            },
+        },
+
     },
     getState() {
         return this._state;

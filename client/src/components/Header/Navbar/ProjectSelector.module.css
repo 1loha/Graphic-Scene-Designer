@@ -1,23 +1,29 @@
 .projectSelector {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    position: relative;
+    display: inline-block;
 }
 
-select, button {
-    padding: 5px;
-    font-size: 14px;
-    background: blue;
-    color: white;
-    border: none;
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 4px;
+    min-width: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dropdownItem {
+    padding: 10px;
+    color: #fff;
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-select {
-    min-width: 150px;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.dropdownItem:hover {
+    background-color: #555;
 }

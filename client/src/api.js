@@ -8,7 +8,7 @@ const getAuthToken = () => {
 
 // Получение ID пользователя из localStorage
 const getUserId = () => {
-    return localStorage.getItem('userId') || 'user-id-placeholder';
+    return localStorage.getItem('userId') || null; // Убрали user-id-placeholder
 };
 
 // Функция регистрации пользователя
@@ -27,6 +27,9 @@ export const register = async (username, password) => {
         }
         return await response.json();
     } catch (error) {
+        if (error.message.includes('400')) {
+            throw error; // Ожидаемая ошибка (например, дубликат пользователя)
+        }
         console.error('Ошибка при регистрации:', error);
         throw error;
     }
@@ -48,6 +51,9 @@ export const login = async (username, password) => {
         }
         return await response.json();
     } catch (error) {
+        if (error.message.includes('401')) {
+            throw error; // Ожидаемая ошибка (неверные учетные данные)
+        }
         console.error('Ошибка при входе:', error);
         throw error;
     }
@@ -71,6 +77,9 @@ export const saveProject = async (projectData) => {
         }
         return await response.json();
     } catch (error) {
+        if (error.message.includes('401')) {
+            throw error; // Ожидаемая ошибка (токен не предоставлен)
+        }
         console.error('Ошибка при сохранении проекта:', error);
         throw error;
     }
@@ -94,6 +103,9 @@ export const updateProject = async (projectId, projectData) => {
         }
         return await response.json();
     } catch (error) {
+        if (error.message.includes('401')) {
+            throw error; // Ожидаемая ошибка (токен не предоставлен)
+        }
         console.error('Ошибка при обновлении проекта:', error);
         throw error;
     }
@@ -115,6 +127,9 @@ export const loadProject = async (projectId) => {
         }
         return await response.json();
     } catch (error) {
+        if (error.message.includes('401')) {
+            throw error; // Ожидаемая ошибка (токен не предоставлен)
+        }
         console.error('Ошибка при загрузке проекта:', error);
         throw error;
     }
@@ -125,6 +140,10 @@ export const getUserProjects = async () => {
     try {
         const token = getAuthToken();
         const userId = getUserId();
+        console.log('Fetching projects for userId:', userId); // Диагностика
+        if (!userId) {
+            throw new Error('401: Пользователь не авторизован');
+        }
         const response = await fetch(`${API_BASE_URL}/projects/user/${userId}`, {
             method: 'GET',
             headers: {
@@ -135,7 +154,9 @@ export const getUserProjects = async () => {
             const errorData = await response.json();
             throw new Error(errorData.error || `Ошибка получения проектов: ${response.status}`);
         }
-        return await response.json();
+        const projects = await response.json();
+        console.log('Projects received:', projects); // Диагностика
+        return projects;
     } catch (error) {
         console.error('Ошибка при получении проектов пользователя:', error);
         throw error;

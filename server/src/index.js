@@ -37,7 +37,7 @@ const projectSchema = new mongoose.Schema({
     updatedAt: { type: Date, required: true },
     name: { type: String, required: true },
     grid: {
-        points: [[Number]],
+        points: { type: [[Number]], default: [] },
         isShapeClosed: { type: Boolean, required: true }
     },
     models: [{
@@ -108,6 +108,12 @@ app.post('/api/projects', authMiddleware, async (req, res) => {
     try {
         console.log('Сохранение проекта:', req.body); // Логирование
         const projectData = { ...req.body, userId: req.userId };
+        // Убедимся, что grid.points есть, даже если пустой
+        if (!projectData.grid || typeof projectData.grid !== 'object') {
+            projectData.grid = { points: [], isShapeClosed: false };
+        } else if (!Array.isArray(projectData.grid.points)) {
+            projectData.grid.points = [];
+        }
         const project = new Project(projectData);
         await project.save();
         console.log('Проект сохранен:', project.projectId);
@@ -123,10 +129,16 @@ app.put('/api/projects/:projectId', authMiddleware, async (req, res) => {
     try {
         console.log('Обновление проекта:', req.params.projectId, req.body); // Логирование
         const projectData = { ...req.body, userId: req.userId };
+        // Убедимся, что grid.points есть
+        if (!projectData.grid || typeof projectData.grid !== 'object') {
+            projectData.grid = { points: [], isShapeClosed: false };
+        } else if (!Array.isArray(projectData.grid.points)) {
+            projectData.grid.points = [];
+        }
         const project = await Project.findOneAndUpdate(
             { projectId: req.params.projectId, userId: req.userId },
             projectData,
-            { new: true }
+            { new: true, runValidators: true }
         );
         if (!project) {
             return res.status(404).json({ error: 'Проект не найден' });
@@ -156,6 +168,7 @@ app.get('/api/projects/:projectId', authMiddleware, async (req, res) => {
 // Эндпоинт получения всех проектов пользователя
 app.get('/api/projects/user/:userId', authMiddleware, async (req, res) => {
     try {
+        console.log('Получение проектов для userId:', req.userId); // Диагностика
         if (req.userId !== req.params.userId) {
             return res.status(403).json({ error: 'Доступ запрещен' });
         }
