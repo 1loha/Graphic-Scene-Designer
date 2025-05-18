@@ -203,9 +203,9 @@ const Scene = (props) => {
                     }
                 }}
             >
-                <ambientLight intensity={4} /> {/* Увеличено для яркости */}
-                <pointLight position={[0, 50, 0]} intensity={5} /> {/* Центрированное освещение */}
-                <directionalLight position={[10, 20, 10]} intensity={2} /> {/* Дополнительный свет */}
+                <ambientLight intensity={1} />
+                {/*<pointLight position={[0, 10, 0]} intensity={10} />*/}
+                <directionalLight position={[0, 20, 0]} intensity={0.3} />
                 <gridHelper args={[100, 100, 0x888888, 0x888888]} />
                 {(props.isGridCreated || props.isDrawing) && (
                     <CustomGrid

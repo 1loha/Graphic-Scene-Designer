@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useLoader } from '@react-three/fiber';
 import floor from '../../images/floor.jpg';
-import wall from '../../images/wall.jpg';
+import wall from '../../images/wall.png';
 
 // Компонент для рендеринга пользовательской сетки, пола и стен
 const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) => {
@@ -27,7 +27,7 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
     }
     if (wallTexture) {
         wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
-        wallTexture.repeat.set(0.5, 0.2); // Масштаб текстуры для стен (0.5 по длине, 0.2 по высоте)
+        wallTexture.repeat.set(2, 2); // Масштаб текстуры для стен (0.5 по длине, 0.2 по высоте)
     }
 
     const floorMaterial = new THREE.MeshStandardMaterial({

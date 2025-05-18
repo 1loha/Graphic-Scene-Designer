@@ -8,7 +8,7 @@ const getAuthToken = () => {
 
 // Получение ID пользователя из localStorage
 const getUserId = () => {
-    return localStorage.getItem('userId') || null; // Убрали user-id-placeholder
+    return localStorage.getItem('userId') || null;
 };
 
 // Функция регистрации пользователя
