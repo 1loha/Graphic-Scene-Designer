@@ -12,10 +12,9 @@ const CatalogObjects = (props) => {
 
     // Получение свойств кнопки (disabled и className)
     const getButtonProps = () => {
-        // Временное отключение блокировки для тестирования
-        const isTestMode = true; // Установите false для возврата к исходной логике
-        const isDisabled = (!props.isGridCreated && !props.isGridDropdown && !isTestMode) || (props.isDrawingGrid && !props.isGridDropdown);
-        console.log('Button props:', { category: props.category, isDisabled, isGridCreated: props.isGridCreated, isDrawingGrid: props.isDrawingGrid, isTestMode });
+        const isDisabled =
+            (!props.isGridCreated && !props.isGridDropdown) ||
+            (props.isDrawingGrid && !props.isGridDropdown);
         return {
             disabled: isDisabled,
             className: isDisabled ? s.disabledButton : ''
@@ -43,25 +42,25 @@ const CatalogObjects = (props) => {
                 </span>
             </button>
             {/* Выпадающее меню */}
-            {props.isOpen && (
-                <div style={{ display: props.isOpen ? 'block' : 'none', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'relative', zIndex: 10 }}>
-                    {props.isGridDropdown ? (
+            {props.isOpen &&
+                (props.isGridDropdown ?
+                    (
                         <GridCreationDropdown
-                            onCreateGrid={props.onCreateGrid}
-                            isDrawingGrid={props.isDrawingGrid}
-                            isOpen={props.isOpen}
+                        onCreateGrid={props.onCreateGrid}
+                        isDrawingGrid={props.isDrawingGrid}
                         />
-                    ) : (
+                    ):
+                    (
                         <DropdownObjects
-                            addModel={props.addModel}
-                            models={props.models}
-                            category={props.category}
-                            onSelectModelType={props.onSelectModelType}
-                            selectedModelType={props.selectedModelType}
+                        addModel={props.addModel}
+                        models={props.models}
+                        category={props.category}
+                        onSelectModelType={props.onSelectModelType}
+                        selectedModelType={props.selectedModelType}
                         />
-                    )}
-                </div>
-            )}
+                    )
+                )
+            }
         </div>
     );
 };

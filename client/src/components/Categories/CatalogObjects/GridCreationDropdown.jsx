@@ -2,7 +2,7 @@ import React from 'react';
 import s from './DropdownObjects/DropdownObjects.module.css';
 
 // Компонент выпадающего меню для создания сетки
-const GridCreationDropdown = ({ onCreateGrid, isDrawingGrid, isOpen }) => {
+const GridCreationDropdown = ({ onCreateGrid, isDrawingGrid }) => {
     // Обработчик клика по кнопке создания сетки
     const handleClick = () => {
         onCreateGrid();
@@ -10,7 +10,7 @@ const GridCreationDropdown = ({ onCreateGrid, isDrawingGrid, isOpen }) => {
 
     // Рендеринг кнопки создания сетки
     return (
-        <div className={s.dropdownObjects} style={{ visibility: isOpen ? 'visible' : 'hidden', padding: '10px' }}>
+        <div className={s.dropdownObjects}>
             <ul>
                 <li>
                     <button onClick={handleClick} disabled={isDrawingGrid}>

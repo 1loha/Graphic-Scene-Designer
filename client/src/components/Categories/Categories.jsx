@@ -15,7 +15,6 @@ const Categories = (props) => {
             isDrawingGrid: props.isDrawingGrid,
             activeCategoryBefore: activeCategory
         });
-        // Временное отключение строгих условий для тестирования
         setActiveCategory(activeCategory === category ? null : category);
     };
 

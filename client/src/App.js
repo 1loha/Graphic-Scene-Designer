@@ -60,6 +60,7 @@ const App = (props) => {
 
     // Завершение создания сетки
     const handleGridCreated = (isCreated) => {
+        console.log('Grid created:', isCreated);
         setIsGridCreated(isCreated);
         setIsDrawingGrid(false);
         setResetDrawing(false);

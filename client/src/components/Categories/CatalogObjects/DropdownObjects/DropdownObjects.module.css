@@ -1,4 +1,5 @@
 .dropdownObjects {
+    /*border: solid 1px #fff;*/
 }
 
 .dropdownObjects ul {
@@ -7,12 +8,7 @@
     margin: 0;
 }
 
-.dropdownObjects li:hover {
-    /*cursor: pointer;*/
-}
-
 .dropdownObjects ul li button {
     font-size: 24px;
-
 }
 
