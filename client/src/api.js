@@ -38,6 +38,7 @@ export const register = async (username, password) => {
 // Функция входа пользователя
 export const login = async (username, password) => {
     try {
+        console.log('Отправка запроса login:', { username, password });
         const response = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             headers: {
@@ -45,11 +46,12 @@ export const login = async (username, password) => {
             },
             body: JSON.stringify({ username, password })
         });
+        const responseData = await response.json();
+        console.log('Ответ сервера:', response.status, responseData);
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `Ошибка входа: ${response.status}`);
+            throw new Error(responseData.error || `Ошибка входа: ${response.status}`);
         }
-        return await response.json();
+        return responseData;
     } catch (error) {
         if (error.message.includes('401')) {
             throw error; // Ожидаемая ошибка (неверные учетные данные)

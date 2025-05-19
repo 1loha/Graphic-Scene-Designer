@@ -71,11 +71,16 @@ const authMiddleware = (req, res, next) => {
 app.post('/api/register', async (req, res) => {
     try {
         const { username, password } = req.body;
-        console.log('Регистрация:', { username }); // Логирование
+        console.log('Регистрация, полученные данные:', { username, password });
         if (!username || !password) {
             return res.status(400).json({ error: 'Логин и пароль обязательны' });
         }
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Пользователь уже существует' });
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
+        console.log('Захешированный пароль:', hashedPassword);
         const user = new User({ username, password: hashedPassword });
         await user.save();
         console.log('Пользователь зарегистрирован:', username);
@@ -90,12 +95,22 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-        console.log('Вход:', { username }); // Логирование
+        console.log('Вход, полученные данные:', { username, password });
+        if (!username || !password) {
+            return res.status(400).json({ error: 'Логин и пароль обязательны' });
+        }
         const user = await User.findOne({ username });
-        if (!user || !await bcrypt.compare(password, user.password)) {
-            return res.status(401).json({ error: 'Неверные учетные данные' });
+        console.log('Найден пользователь:', user);
+        if (!user) {
+            return res.status(401).json({ error: 'Пользователь не найден' });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log('Пароль совпадает:', isMatch);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Неверный пароль' });
         }
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        console.log('Токен создан:', token);
         res.json({ token, userId: user._id });
     } catch (error) {
         console.error('Ошибка входа:', error.message);

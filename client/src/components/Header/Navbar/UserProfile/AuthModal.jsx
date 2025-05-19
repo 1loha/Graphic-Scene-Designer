@@ -32,6 +32,7 @@ const AuthModal = ({ onClick, onLoginSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Валидация полей
+        console.log('Отправляемые данные:', formData);
         const newErrors = {};
         if (!formData.login) newErrors.login = 'Логин обязателен';
         if (!formData.password) newErrors.password = 'Пароль обязателен';
@@ -51,6 +52,7 @@ const AuthModal = ({ onClick, onLoginSuccess }) => {
                 } else {
                     // Действие пользователя: Заполнить логин и пароль, нажать "Войти"
                     const { token, userId } = await login(formData.login, formData.password);
+                    console.log('Успешный логин:', { token, userId });
                     localStorage.setItem('authToken', token); // Сохранить токен
                     localStorage.setItem('userId', userId); // Сохранить ID пользователя
                     onLoginSuccess(); // Уведомить о входе
