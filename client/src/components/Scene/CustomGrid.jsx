@@ -5,7 +5,7 @@ import floor from '../../images/floor.jpg';
 import wall from '../../images/wall.png';
 
 // Компонент для рендеринга пользовательской сетки, пола и стен
-const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) => {
+const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children, isGridCreated }) => {
     const groupRef = useRef(new THREE.Group());
     const pointsGeometryRef = useRef(new THREE.BufferGeometry());
     const linesGeometryRef = useRef(new THREE.BufferGeometry());
@@ -58,7 +58,6 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
 
     // Обновление точек, линий, пола и стен
     useEffect(() => {
-        console.log('CustomGrid props:', { gridPoints, isShapeClosed });
 
         // Проверка валидности gridPoints
         if (!Array.isArray(gridPoints) || gridPoints.length === 0) {
@@ -74,20 +73,28 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
             return;
         }
 
-        // Обновление точек
-        const points = gridPoints.flat();
-        pointsGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
-        pointsGeometryRef.current.needsUpdate = true;
+        // Обновление точек и линий
+        if (isGridCreated && isShapeClosed) {
+            // Скрываем точки и линии после создания планировки
+            pointsGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute([], 3));
+            linesGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute([], 3));
+        } else {
+            // Обновление точек
+            const points = gridPoints.flat();
+            pointsGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+            pointsGeometryRef.current.needsUpdate = true;
 
-        // Обновление линий
-        const linePoints = isShapeClosed && gridPoints.length >= 3
-            ? [...points, points[0], points[1], points[2]]
-            : points;
-        linesGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute(linePoints, 3));
-        linesGeometryRef.current.needsUpdate = true;
+            // Обновление линий
+            const linePoints = isShapeClosed && gridPoints.length >= 3
+                ? [...points, points[0], points[1], points[2]]
+                : points;
+            linesGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute(linePoints, 3));
+            linesGeometryRef.current.needsUpdate = true;
+        }
 
         // Обновление пола и стен
         if (isShapeClosed && gridPoints.length >= 3) {
+            console.log('Rendering floor and walls:', { gridPoints });
             // Создание пола
             const shape = new THREE.Shape();
             gridPoints.forEach(([x, , z], i) => {
@@ -141,7 +148,7 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children }) =>
                 wallsGroupRef.current.remove(wallsGroupRef.current.children[0]);
             }
         }
-    }, [gridPoints, isShapeClosed, onShapeComplete]);
+    }, [gridPoints, isShapeClosed, isGridCreated, onShapeComplete]);
 
     return <primitive object={groupRef.current}>{children}</primitive>;
 };

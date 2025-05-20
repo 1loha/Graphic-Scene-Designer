@@ -204,9 +204,10 @@ const Scene = (props) => {
                 }}
             >
                 <ambientLight intensity={1} />
-                {/*<pointLight position={[0, 10, 0]} intensity={10} />*/}
-                <directionalLight position={[0, 20, 0]} intensity={0.3} />
-                <gridHelper args={[100, 100, 0x888888, 0x888888]} />
+                <directionalLight position={[0, 10, 0]} intensity={0.8} />
+                {(!props.isGridCreated || props.isDrawing) && (
+                    <gridHelper args={[100, 100, 0x888888, 0x888888]} />
+                )}
                 {(props.isGridCreated || props.isDrawing) && (
                     <CustomGrid
                         gridScale={props.gridScale}
@@ -215,6 +216,7 @@ const Scene = (props) => {
                         gridPoints={props.gridPoints}
                         isShapeClosed={isShapeClosed}
                         onShapeComplete={handleShapeComplete}
+                        isGridCreated={props.isGridCreated}
                     >
                         {props.isGridCreated &&
                             props.models.map((model) => {
