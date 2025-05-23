@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import s from './Navbar.module.css';
 import settingsIcon from '../../../images/settings_white.png';
 import supportIcon from '../../../images/support_white.png';
@@ -9,32 +9,74 @@ import ProjectSelector from './ProjectSelector';
 
 // Навигационная панель приложения
 const Navbar = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthenticated, onLogout }) => {
-    // Обработчик клика по кнопке настроек
     const handleSettingsClick = () => {
         console.log('Settings button clicked');
     };
 
-    // Обработчик клика по кнопке поддержки
     const handleSupportClick = () => {
         console.log('Support button clicked');
     };
 
-    // Рендеринг навигационной панели
+    const [isSaveFormOpen, setIsSaveFormOpen] = useState(false);
+    const [projectName, setProjectName] = useState('');
+
+    // Отладка состояния
+    console.log('isSaveFormOpen:', isSaveFormOpen);
+
+    const handleNameChange = (e) => {
+        setProjectName(e.target.value);
+    };
+
+    const handleSaveConfirm = () => {
+        if (projectName.trim()) {
+            console.log('Saving project with name:', projectName);
+            onSaveProject(projectName);
+            setIsSaveFormOpen(false);
+            setProjectName('');
+        } else {
+            console.log('Project name is empty');
+        }
+    };
+
+    const handleCancel = () => {
+        setIsSaveFormOpen(false);
+        setProjectName('');
+    };
+
     return (
         <nav className={s.navbar}>
             <ul>
-                {/* Кнопка сохранения проекта */}
                 <li>
                     <button
                         className={s.navButton}
-                        onClick={onSaveProject}
+                        onClick={() => {
+                            console.log('Save button clicked');
+                            setIsSaveFormOpen(true);
+                        }}
                         aria-label="Save Project"
                         title="Сохранить проект"
                     >
                         <img src={saveIcon} alt="save" />
                     </button>
+                    {isSaveFormOpen && (
+                        <div className={s.saveForm}>
+                            <span>Введите название проекта</span>
+                            <input
+                                type="text"
+                                value={projectName}
+                                onChange={handleNameChange}
+                                className={s.input}
+                                placeholder="Название проекта"
+                            />
+                            <button className={s.ok} onClick={handleSaveConfirm}>
+                                Подтвердить
+                            </button>
+                            <button className={s.cancel} onClick={handleCancel}>
+                                Отмена
+                            </button>
+                        </div>
+                    )}
                 </li>
-                {/* Селектор проектов */}
                 <li>
                     <ProjectSelector
                         onLoadProject={onLoadProject}
@@ -42,10 +84,8 @@ const Navbar = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthentica
                         isAuthenticated={isAuthenticated}
                     />
                 </li>
-                {/* Кнопка профиля или выхода */}
                 <li>
                     {isAuthenticated ? (
-                        // Действие пользователя: Нажать для выхода из аккаунта
                         <button
                             className={s.navButton}
                             onClick={onLogout}
@@ -55,7 +95,6 @@ const Navbar = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthentica
                             <img src={logoutIcon} alt="logout" />
                         </button>
                     ) : (
-                        // Действие пользователя: Открыть форму авторизации/регистрации
                         <button
                             className={s.navButton}
                             onClick={onUserProfileClick}
@@ -66,7 +105,6 @@ const Navbar = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthentica
                         </button>
                     )}
                 </li>
-                {/* Кнопка поддержки */}
                 <li>
                     <button
                         className={s.navButton}
@@ -77,7 +115,6 @@ const Navbar = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthentica
                         <img src={supportIcon} alt="support" />
                     </button>
                 </li>
-                {/* Кнопка настроек */}
                 <li>
                     <button
                         className={s.navButton}

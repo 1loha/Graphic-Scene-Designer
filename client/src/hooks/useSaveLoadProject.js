@@ -25,7 +25,7 @@ const useSaveLoadProject = ({
     };
 
     // Функция сохранения проекта
-    const saveProject = async () => {
+    const saveProject = async (newProjectName = projectName) => {
         try {
             // Формирование данных проекта
             const projectData = {
@@ -33,7 +33,7 @@ const useSaveLoadProject = ({
                 userId: getUserId(),
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
-                name: projectName,
+                name: newProjectName || 'Без названия',
                 grid: {
                     points: Array.isArray(gridPoints) ? gridPoints : [],
                     isShapeClosed: isGridCreated && gridPoints.length > 0
@@ -60,6 +60,7 @@ const useSaveLoadProject = ({
                 ? await updateProject(projectId, projectData)
                 : await saveProjectApi(projectData);
             if (!projectId) setProjectId(response.projectId);
+            setProjectName(newProjectName);
             console.log('Проект сохранен:', response);
             return response;
         } catch (error) {

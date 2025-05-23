@@ -1,5 +1,4 @@
 .dropdownObjects {
-    /*border: solid 1px #fff;*/
 }
 
 .dropdownObjects ul {
@@ -10,5 +9,6 @@
 
 .dropdownObjects ul li button {
     font-size: 24px;
+    justify-content: space-around;
+    border-top: solid 1px aquamarine;
 }
-

@@ -87,7 +87,7 @@ app.post('/api/register', async (req, res) => {
         res.status(201).json({ message: 'Пользователь зарегистрирован' });
     } catch (error) {
         console.error('Ошибка регистрации:', error.message);
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ error: "Ошибка регистрации" });
     }
 });
 
