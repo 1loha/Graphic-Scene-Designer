@@ -17,7 +17,6 @@ const Scene = (props) => {
     const [isTransformActive, setIsTransformActive] = useState(false);
     const [isShapeClosed, setIsShapeClosed] = useState(props.isGridCreated);
 
-    // Синхронизация isShapeClosed с props.isGridCreated
     useEffect(() => {
         setIsShapeClosed(props.isGridCreated);
     }, [props.isGridCreated]);
@@ -26,11 +25,6 @@ const Scene = (props) => {
     useEffect(() => {
         if (props.resetDrawing) setIsShapeClosed(false);
     }, [props.resetDrawing]);
-
-    // Логирование для диагностики
-    useEffect(() => {
-        console.log('Scene props:', { gridPoints: props.gridPoints, isGridCreated: props.isGridCreated, isShapeClosed });
-    }, [props.gridPoints, props.isGridCreated, isShapeClosed]);
 
     // Обработка завершения формы полигона
     const handleShapeComplete = (isComplete) => {

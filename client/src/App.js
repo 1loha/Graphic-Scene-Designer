@@ -8,27 +8,35 @@ import { AddModel } from './components/Scene/AddModel';
 import AuthModal from "./components/Header/Navbar/UserProfile/AuthModal";
 import useSaveLoadProject from './hooks/useSaveLoadProject';
 
-// Главный компонент приложения
+// Главный компонент приложения, управляет состоянием и рендерингом
 const App = (props) => {
-    // Состояния для управления сценой и моделями
+    // Состояние для выбранной модели
     const [selectedModelId, setSelectedModelId] = useState(null);
+    // Флаг создания сетки
     const [isGridCreated, setIsGridCreated] = useState(false);
+    // Флаг рисования сетки
     const [isDrawingGrid, setIsDrawingGrid] = useState(false);
+    // Точки сетки
     const [gridPoints, setGridPoints] = useState([]);
+    // Тип выбранной модели
     const [selectedModelType, setSelectedModelType] = useState(null);
+    // Флаг сброса рисования
     const [resetDrawing, setResetDrawing] = useState(false);
-    // Состояние для управления модальным окном авторизации
+    // Показ модального окна авторизации
     const [showAuthModal, setShowAuthModal] = useState(false);
-    // Состояния для управления проектом
+    // Callback'и для авторизации
+    const [authCallbacks, setAuthCallbacks] = useState({ onSuccess: null, onFailure: null });
+    // ID проекта
     const [projectId, setProjectId] = useState(null);
+    // Название проекта
     const [projectName, setProjectName] = useState('My Project');
-    // Состояние для отслеживания авторизации
+    // Флаг авторизации
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
 
     // Хук для управления моделями
     const { models, addModel, updateModel, deleteModel, setModels } = AddModel({ state: props.state, isGridCreated });
 
-    // Хук для сохранения и загрузки проектов
+    // Хук для сохранения/загрузки проектов
     const { saveProject, loadProject } = useSaveLoadProject({
         projectId,
         setProjectId,
@@ -44,13 +52,17 @@ const App = (props) => {
         setResetDrawing,
         models,
         setModels,
-        openAuthModal: () => setShowAuthModal(true)
+        // Открытие модального окна авторизации
+        openAuthModal: ({ onSuccess, onFailure } = {}) => {
+            setAuthCallbacks({ onSuccess, onFailure });
+            setShowAuthModal(true);
+        }
     });
 
-    // Обновление параметров модели
+    // Обновление модели
     const handleModelUpdate = (id, updates) => { updateModel(id, updates); };
 
-    // Создание новой сетки
+    // Начало создания сетки
     const handleCreateGrid = () => {
         setIsDrawingGrid(true);
         setGridPoints([]);
@@ -66,7 +78,7 @@ const App = (props) => {
         setResetDrawing(false);
     };
 
-    // Добавление точки к сетке
+    // Добавление точки сетки
     const handlePointAdded = (data) => {
         if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
             setGridPoints(data);
@@ -80,7 +92,7 @@ const App = (props) => {
         setSelectedModelType({ category, type });
     };
 
-    // Завершение размещения модели
+    // Размещение модели
     const handleModelPlaced = () => { setSelectedModelType(null); };
 
     // Удаление модели
@@ -89,26 +101,36 @@ const App = (props) => {
         if (selectedModelId === id) setSelectedModelId(null);
     };
 
-    // Действие пользователя: Открытие формы авторизации/регистрации
+    // Открытие профиля/авторизации
     const handleUserProfileClick = () => { setShowAuthModal(true); };
 
-    // Закрытие формы авторизации/регистрации
-    const handleCloseModal = () => { setShowAuthModal(false); };
+    // Закрытие модального окна
+    const handleCloseModal = () => {
+        setShowAuthModal(false);
+        if (authCallbacks.onFailure) {
+            authCallbacks.onFailure();
+        }
+        setAuthCallbacks({ onSuccess: null, onFailure: null });
+    };
 
-    // Обработка успешного входа
+    // Успешная авторизация
     const handleLoginSuccess = () => {
         setIsAuthenticated(true);
         setShowAuthModal(false);
+        if (authCallbacks.onSuccess) {
+            authCallbacks.onSuccess();
+        }
+        setAuthCallbacks({ onSuccess: null, onFailure: null });
     };
 
-    // Обработка выхода
+    // Выход из аккаунта
     const handleLogout = () => {
         localStorage.removeItem('authToken');
         localStorage.removeItem('userId');
         setIsAuthenticated(false);
     };
 
-    // Обработка нажатия клавиши Escape
+    // Обработка нажатия Escape
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
@@ -124,15 +146,15 @@ const App = (props) => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isDrawingGrid, showAuthModal]);
 
-    // Логирование для проверки пропсов Scene
+    // Логирование состояния сетки
     useEffect(() => {
         console.log('App state:', { gridPoints, isGridCreated });
     }, [gridPoints, isGridCreated]);
 
-    // Поиск выбранной модели
+    // Выбранная модель
     const selectedModel = models.find((model) => model.id === selectedModelId);
 
-    // Рендеринг компонентов приложения
+    // Рендеринг компонентов
     return (
         <div className={s.appWrapper}>
             <Header

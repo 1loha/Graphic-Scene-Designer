@@ -72,6 +72,7 @@
     border: none;
     padding: 10px;
     width: 100px;
+    min-width: 80px;
     align-self: center;
     transition: transform 0.2s, opacity 0.2s;
 }

@@ -20,8 +20,6 @@ const Navbar = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthentica
     const [isSaveFormOpen, setIsSaveFormOpen] = useState(false);
     const [projectName, setProjectName] = useState('');
 
-    // Отладка состояния
-    console.log('isSaveFormOpen:', isSaveFormOpen);
 
     const handleNameChange = (e) => {
         setProjectName(e.target.value);
@@ -29,12 +27,9 @@ const Navbar = ({ onUserProfileClick, onSaveProject, onLoadProject, isAuthentica
 
     const handleSaveConfirm = () => {
         if (projectName.trim()) {
-            console.log('Saving project with name:', projectName);
             onSaveProject(projectName);
             setIsSaveFormOpen(false);
             setProjectName('');
-        } else {
-            console.log('Project name is empty');
         }
     };
 

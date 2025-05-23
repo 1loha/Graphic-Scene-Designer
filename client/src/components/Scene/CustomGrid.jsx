@@ -23,21 +23,21 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children, isGr
     // Настройка текстур: повторение и смещение
     if (floorTexture) {
         floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-        floorTexture.repeat.set(0.1, 0.1); // Масштаб текстуры для пола
+        floorTexture.repeat.set(0.1, 0.1);
     }
     if (wallTexture) {
         wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
-        wallTexture.repeat.set(2, 2); // Масштаб текстуры для стен (0.5 по длине, 0.2 по высоте)
+        wallTexture.repeat.set(2, 2);
     }
 
     const floorMaterial = new THREE.MeshStandardMaterial({
         map: floorTexture || null,
-        color: 0xffffff, // Белый цвет для максимальной яркости текстуры
+        color: 0xffffff,
         side: THREE.DoubleSide,
     });
     const wallMaterial = new THREE.MeshStandardMaterial({
         map: wallTexture || null,
-        color: 0xffffff, // Белый цвет для максимальной яркости текстуры
+        color: 0xffffff,
         side: THREE.DoubleSide,
     });
 
@@ -58,7 +58,6 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children, isGr
 
     // Обновление точек, линий, пола и стен
     useEffect(() => {
-
         // Проверка валидности gridPoints
         if (!Array.isArray(gridPoints) || gridPoints.length === 0) {
             pointsGeometryRef.current.setAttribute('position', new THREE.Float32BufferAttribute([], 3));
@@ -94,7 +93,6 @@ const CustomGrid = ({ gridPoints, isShapeClosed, onShapeComplete, children, isGr
 
         // Обновление пола и стен
         if (isShapeClosed && gridPoints.length >= 3) {
-            console.log('Rendering floor and walls:', { gridPoints });
             // Создание пола
             const shape = new THREE.Shape();
             gridPoints.forEach(([x, , z], i) => {

@@ -15,20 +15,16 @@ const ProjectSelector = ({ onLoadProject, onUserProfileClick, isAuthenticated })
     useEffect(() => {
         const fetchProjects = async () => {
             const userId = localStorage.getItem('userId');
-            console.log('Fetching projects for userId:', userId, 'isAuthenticated:', isAuthenticated); // Диагностика
             if (!userId || !isAuthenticated) {
-                console.log('No userId or not authenticated, skipping fetch');
                 setProjects([]);
                 return;
             }
             try {
                 const userProjects = await getUserProjects();
-                console.log('Projects set:', userProjects); // Диагностика
                 setProjects(userProjects);
             } catch (error) {
                 console.error('Ошибка загрузки проектов:', error);
                 if (error.message.includes('401') || error.message.includes('403')) {
-                    console.log('Unauthorized or forbidden, opening AuthModal');
                     onUserProfileClick(); // Открыть AuthModal
                     setProjects([]);
                     return;

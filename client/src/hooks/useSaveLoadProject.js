@@ -11,15 +11,12 @@ const useSaveLoadProject = ({
                                 setGridPoints,
                                 isGridCreated,
                                 setIsGridCreated,
-                                isDrawingGrid,
                                 setIsDrawingGrid,
-                                resetDrawing,
                                 setResetDrawing,
                                 models,
                                 setModels,
                                 openAuthModal
                             }) => {
-    // Получение userId из localStorage
     const getUserId = () => {
         return localStorage.getItem('userId') || null;
     };
@@ -48,20 +45,40 @@ const useSaveLoadProject = ({
                     baseScale: model.baseScale
                 }))
             };
-            // Логирование данных для отладки
-            console.log('Отправляемые данные проекта:', JSON.stringify(projectData, null, 2));
+
             // Проверка userId
             if (!projectData.userId) {
-                openAuthModal();
-                return null;
+                // Создаём Promise для ожидания авторизации
+                const authPromise = new Promise((resolve, reject) => {
+                    // Открываем модальное окно и передаём callback для завершения
+                    openAuthModal({
+                        onSuccess: () => {
+                            const userId = getUserId();
+                            if (userId) {
+                                resolve(userId);
+                            } else {
+                                reject(new Error('Авторизация не удалась'));
+                            }
+                        },
+                        onFailure: () => reject(new Error('Авторизация отменена'))
+                    });
+                });
+
+                // Ожидаем авторизацию
+                try {
+                    projectData.userId = await authPromise;
+                } catch (error) {
+                    console.error('Ошибка авторизации:', error);
+                    return null;
+                }
             }
+
             // Обновление или создание проекта
             const response = projectId
                 ? await updateProject(projectId, projectData)
                 : await saveProjectApi(projectData);
             if (!projectId) setProjectId(response.projectId);
             setProjectName(newProjectName);
-            console.log('Проект сохранен:', response);
             return response;
         } catch (error) {
             console.error('Ошибка сохранения:', error);
@@ -77,9 +94,6 @@ const useSaveLoadProject = ({
     const loadProject = async (projectId) => {
         try {
             const projectData = await loadProjectApi(projectId);
-            // Логирование загруженных данных
-            console.log('Загруженные данные проекта:', JSON.stringify(projectData, null, 2));
-            // Обновление состояния приложения
             setProjectId(projectData.projectId);
             setProjectName(projectData.name);
             const points = Array.isArray(projectData.grid?.points) ? projectData.grid.points : [];
@@ -88,7 +102,6 @@ const useSaveLoadProject = ({
             setIsDrawingGrid(false);
             setResetDrawing(false);
             setModels(projectData.models || []);
-            console.log('Установлены gridPoints:', points, 'isGridCreated:', projectData.grid?.isShapeClosed);
             return projectData;
         } catch (error) {
             console.error('Ошибка загрузки:', error);
