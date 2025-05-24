@@ -7,6 +7,7 @@ import GridCreationDropdown from './GridCreationDropdown';
 
 // Компонент для отображения категории объектов
 const CatalogObjects = (props) => {
+
     // Обработчик клика по выпадающему меню
     const handleDropdownClick = () => props.onToggle(props.nameCategory);
 
@@ -52,11 +53,11 @@ const CatalogObjects = (props) => {
                     ):
                     (
                         <DropdownObjects
-                        addModel={props.addModel}
-                        models={props.models}
-                        category={props.category}
-                        onSelectModelType={props.onSelectModelType}
-                        selectedModelType={props.selectedModelType}
+                            addModel={props.addModel}
+                            models={props.models}
+                            category={props.category}
+                            onSelectModelType={props.onSelectModelType}
+                            selectedModelType={props.selectedModelType}
                         />
                     )
                 )

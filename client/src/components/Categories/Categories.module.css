@@ -12,3 +12,19 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.importButton {
+    width: 100%;
+    font-size: 24px;
+    padding: 8px;
+    margin-top: 5px;
+    background: blue;
+    color: white;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.importButton:hover {
+    background-color: rgba(0, 0, 0, 0.14);
+}

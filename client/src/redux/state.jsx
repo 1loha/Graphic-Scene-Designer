@@ -71,6 +71,11 @@ let store = {
                 steve: { label: 'Стив', path: '/models/steve/source/model.gltf', scale: m },
             },
         },
+        imported: {
+            displayName: 'Добавленные',
+            models: {
+            },
+        },
 
     },
     getState() {

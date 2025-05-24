@@ -24,7 +24,7 @@ const App = (props) => {
     const [resetDrawing, setResetDrawing] = useState(false);
     // Показ модального окна авторизации
     const [showAuthModal, setShowAuthModal] = useState(false);
-    // Callback'и для авторизации
+    // Callback для авторизации
     const [authCallbacks, setAuthCallbacks] = useState({ onSuccess: null, onFailure: null });
     // ID проекта
     const [projectId, setProjectId] = useState(null);
@@ -72,7 +72,6 @@ const App = (props) => {
 
     // Завершение создания сетки
     const handleGridCreated = (isCreated) => {
-        console.log('Grid created:', isCreated);
         setIsGridCreated(isCreated);
         setIsDrawingGrid(false);
         setResetDrawing(false);
@@ -95,8 +94,34 @@ const App = (props) => {
     // Размещение модели
     const handleModelPlaced = () => { setSelectedModelType(null); };
 
+    // Импорт модели
+    const handleImportModel = (file, category) => {
+        if (!props.state[category]) {
+            console.error(`Category ${category} does not exist in state`);
+            return;
+        }
+        const modelUrl = URL.createObjectURL(file);
+        const modelType = `imported_${Date.now()}`;
+        // Временные данные модели
+        const tempModelData = {
+            label: file.name.replace('.glb', ''),
+            path: modelUrl,
+            scale: [1, 1, 1]
+        };
+
+        // Обновляем state с новой моделью
+        props.state[category].models[modelType] = tempModelData;
+
+        // Добавляем модель на сцену
+        addModel(category, modelType, { position: [0, 0, 0] });
+    };
+
     // Удаление модели
     const handleDeleteModel = (id) => {
+        const model = models.find(m => m.id === id);
+        if (model && model.type.startsWith('imported_')) {
+            URL.revokeObjectURL(props.state[model.category].models[model.type].path);
+        }
         deleteModel(id);
         if (selectedModelId === id) setSelectedModelId(null);
     };
@@ -166,6 +191,7 @@ const App = (props) => {
                 isGridCreated={isGridCreated}
                 isDrawingGrid={isDrawingGrid}
                 onSelectModelType={handleSelectModelType}
+                onImportModel={handleImportModel}
             />
             <Scene
                 state={props.state}
