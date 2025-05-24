@@ -9,12 +9,6 @@ const Categories = (props) => {
 
     // Переключение активной категории
     const handleCategoryToggle = (category) => {
-        console.log('Toggle category:', {
-            category,
-            isGridCreated: props.isGridCreated,
-            isDrawingGrid: props.isDrawingGrid,
-            activeCategoryBefore: activeCategory
-        });
         setActiveCategory(activeCategory === category ? null : category);
     };
 
@@ -32,6 +26,7 @@ const Categories = (props) => {
                     onToggle={() => handleCategoryToggle(category)}
                     addModel={props.addModel}
                     models={props.state[category].models}
+                    buttonLabel={props.state[category].models.label}
                     category={category}
                     isGridDropdown={category === 'createGrid'}
                     onCreateGrid={props.onCreateGrid}

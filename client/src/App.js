@@ -146,11 +146,6 @@ const App = (props) => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isDrawingGrid, showAuthModal]);
 
-    // Логирование состояния сетки
-    useEffect(() => {
-        console.log('App state:', { gridPoints, isGridCreated });
-    }, [gridPoints, isGridCreated]);
-
     // Выбранная модель
     const selectedModel = models.find((model) => model.id === selectedModelId);
 

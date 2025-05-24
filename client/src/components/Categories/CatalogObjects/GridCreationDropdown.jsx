@@ -14,7 +14,7 @@ const GridCreationDropdown = ({ onCreateGrid, isDrawingGrid }) => {
             <ul>
                 <li>
                     <button onClick={handleClick} disabled={isDrawingGrid}>
-                        Создать сетку
+                        Создать планировку
                     </button>
                 </li>
             </ul>

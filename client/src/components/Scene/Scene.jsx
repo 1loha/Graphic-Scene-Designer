@@ -16,6 +16,9 @@ const Scene = (props) => {
     const [transformMode, setTransformMode] = useState('translate');
     const [isTransformActive, setIsTransformActive] = useState(false);
     const [isShapeClosed, setIsShapeClosed] = useState(props.isGridCreated);
+    const [cursorPosition, setCursorPosition] = useState(null);
+    const [isMouseDown, setIsMouseDown] = useState(false);
+    const [distanceInfo, setDistanceInfo] = useState({ visible: false, distance: '0.00', x: 0, y: 0 });
 
     useEffect(() => {
         setIsShapeClosed(props.isGridCreated);
@@ -57,10 +60,25 @@ const Scene = (props) => {
             return false;
         };
 
+        // Вычисление расстояния в метрах
+        const calculateDistance = (point1, point2) => {
+            if (!point1 || !point2) return null;
+            const dx = point2[0] - point1[0];
+            const dz = point2[2] - point1[2];
+            const distance = Math.sqrt(dx * dx + dz * dz) * 0.1; // 1 единица = 0.1 м
+            return distance.toFixed(2);
+        };
+
         // Обработка событий мыши
         useEffect(() => {
             const handleMouseDown = (event) => {
                 if (isDragging.current || event.button !== 0) return;
+                setIsMouseDown(true);
+            };
+
+            const handleMouseUp = (event) => {
+                if (event.button !== 0 || !isMouseDown) return;
+                setIsMouseDown(false);
 
                 const rect = gl.domElement.getBoundingClientRect();
                 const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -68,9 +86,7 @@ const Scene = (props) => {
 
                 raycaster.current.setFromCamera(new THREE.Vector2(x, y), camera);
                 const intersection = new THREE.Vector3();
-                raycaster.current.ray.intersectPlane(plane.current, intersection);
-
-                if (!intersection) return;
+                if (!raycaster.current.ray.intersectPlane(plane.current, intersection)) return;
 
                 if (props.isDrawing && !isShapeClosed) {
                     const snappedX = Math.round(intersection.x);
@@ -117,6 +133,35 @@ const Scene = (props) => {
                 }
             };
 
+            const handleMouseMove = (event) => {
+                const rect = gl.domElement.getBoundingClientRect();
+                const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+                raycaster.current.setFromCamera(new THREE.Vector2(x, y), camera);
+                const intersection = new THREE.Vector3();
+                if (raycaster.current.ray.intersectPlane(plane.current, intersection)) {
+                    const snappedX = Math.round(intersection.x);
+                    const snappedZ = Math.round(intersection.z);
+                    const newCursorPosition = [snappedX, 0, snappedZ];
+                    setCursorPosition(newCursorPosition);
+                    if (props.isDrawing) {
+                        const distance = calculateDistance(props.gridPoints[props.gridPoints.length - 1], newCursorPosition);
+                        setDistanceInfo({
+                            visible: !!distance,
+                            distance: distance || '0.00',
+                            x: event.clientX,
+                            y: event.clientY
+                        });
+                    } else {
+                        setDistanceInfo({ visible: false, distance: '0.00', x: 0, y: 0 });
+                    }
+                } else {
+                    setCursorPosition(null);
+                    setDistanceInfo({ visible: false, distance: '0.00', x: 0, y: 0 });
+                }
+            };
+
             const handleRightClick = (event) => {
                 if (!props.isDrawing || event.button !== 2 || isShapeClosed) return;
                 event.preventDefault();
@@ -127,21 +172,16 @@ const Scene = (props) => {
             };
 
             gl.domElement.addEventListener('mousedown', handleMouseDown);
+            gl.domElement.addEventListener('mouseup', handleMouseUp);
+            gl.domElement.addEventListener('mousemove', handleMouseMove);
             gl.domElement.addEventListener('contextmenu', handleRightClick);
             return () => {
                 gl.domElement.removeEventListener('mousedown', handleMouseDown);
+                gl.domElement.removeEventListener('mouseup', handleMouseUp);
+                gl.domElement.removeEventListener('mousemove', handleMouseMove);
                 gl.domElement.removeEventListener('contextmenu', handleRightClick);
             };
-        }, [
-            props.isDrawing,
-            props.gridPoints,
-            isShapeClosed,
-            props.onPointAdded,
-            props.isGridCreated,
-            props.selectedModelType,
-            props.addModel,
-            props.onModelPlaced
-        ]);
+        }, [ props.isDrawing, props.gridPoints, isShapeClosed, props.onPointAdded, props.isGridCreated, props.selectedModelType, props.addModel, props.onModelPlaced, isMouseDown ]);
 
         return null;
     };
@@ -164,6 +204,7 @@ const Scene = (props) => {
                 setTransformMode('translate');
                 setIsTransformActive(false);
                 setIsShapeClosed(false);
+                setDistanceInfo({ visible: false, distance: '0.00', x: 0, y: 0 });
             }
             if (e.key === 'w' || e.key === 'ц') {
                 setTransformMode('translate');
@@ -185,9 +226,7 @@ const Scene = (props) => {
     // Рендеринг сцены
     return (
         <div style={{ position: 'relative' }}>
-            <Canvas
-                orthographic
-                camera={{ position: [0, 100, 0], zoom: 30, near: 0.1 }}
+            <Canvas orthographic camera={{ position: [0, 100, 0], zoom: 30, near: 0.1 }}
                 onPointerMissed={() => {
                     if (!isDragging.current && !props.isDrawing) {
                         props.onModelSelect(null);
@@ -203,14 +242,9 @@ const Scene = (props) => {
                     <gridHelper args={[100, 100, 0x888888, 0x888888]} />
                 )}
                 {(props.isGridCreated || props.isDrawing) && (
-                    <CustomGrid
-                        gridScale={props.gridScale}
-                        gridDivisions={props.gridDivisions}
-                        isDrawing={props.isDrawing}
-                        gridPoints={props.gridPoints}
-                        isShapeClosed={isShapeClosed}
-                        onShapeComplete={handleShapeComplete}
-                        isGridCreated={props.isGridCreated}
+                    <CustomGrid gridScale={props.gridScale} gridDivisions={props.gridDivisions} isDrawing={props.isDrawing}
+                        gridPoints={props.gridPoints} isShapeClosed={isShapeClosed} onShapeComplete={handleShapeComplete}
+                        isGridCreated={props.isGridCreated} cursorPosition={cursorPosition} isMouseDown={isMouseDown}
                     >
                         {props.isGridCreated &&
                             props.models.map((model) => {
@@ -252,18 +286,13 @@ const Scene = (props) => {
                             })}
                     </CustomGrid>
                 )}
-                <TransformWrapper
-                    selectedObject={selectedRef}
-                    mode={transformMode}
-                    isActive={isTransformActive}
-                    orbitControlRef={orbitControlRef}
-                    onChangeStart={() => { isDragging.current = true; }}
+                <TransformWrapper selectedObject={selectedRef} mode={transformMode} isActive={isTransformActive}
+                    orbitControlRef={orbitControlRef} onChangeStart={() => { isDragging.current = true; }}
                     onChangeEnd={() => {
                         setTimeout(() => {
                             isDragging.current = false;
                         }, 50);
-                    }}
-                    onScaleChange={(newScale) => {
+                    }} onScaleChange={(newScale) => {
                         if (props.selectedModelId) {
                             const selectedModel = props.models.find(
                                 (m) => m.id === props.selectedModelId
@@ -275,8 +304,7 @@ const Scene = (props) => {
                                 props.onModelUpdate(props.selectedModelId, { normalizedScale });
                             }
                         }
-                    }}
-                    onRotateChange={(newRotation) => {
+                    }} onRotateChange={(newRotation) => {
                         if (props.selectedModelId) {
                             props.onModelUpdate(props.selectedModelId, { rotation: newRotation });
                         }
@@ -285,9 +313,32 @@ const Scene = (props) => {
                 <OrbitControls ref={orbitControlRef} makeDefault />
                 {(props.isDrawing || props.isGridCreated) && <DrawingHandler />}
             </Canvas>
+            {!props.isGridCreated && !props.isDrawing && (
+                <div style={{ position: 'absolute', top: 10, left: 10, color: 'white', background: 'rgba(0,0,0,0.5)', padding: 5 }}>
+                    Начните проект с создания Планировки
+                </div>
+            )
+
+            }
             {props.isGridCreated && (
                 <div style={{ position: 'absolute', top: 10, left: 10, color: 'white', background: 'rgba(0,0,0,0.5)', padding: 5 }}>
                     Выберите объект из категорий и расположите внутри сцены
+                </div>
+            )}
+            {props.isDrawing && (
+                <div style={{ position: 'absolute', top: 10, left: 10, color: 'white', background: 'rgba(0,0,0,0.5)', padding: 5 }}>
+                    Нажимайте ЛКМ по сетке, чтобы рисовать планировку, соедините первую и последнюю точки для завершения.
+                    <p style={{marginBottom: 5}}>
+                        ПКМ для сброса последней точки
+                    </p>
+                    <p style={{marginBottom: 5}}>
+                        Ecs для сброса всей планировки
+                    </p>
+                </div>
+            )}
+            {distanceInfo.visible && (
+                <div style={{ position: 'fixed', top: distanceInfo.y + 10, left: distanceInfo.x + 10, color: 'white', background: 'rgba(0,0,0,0.2)', padding: '5px', pointerEvents: 'none', zIndex: 1000 }} >
+                    {distanceInfo.distance} м
                 </div>
             )}
         </div>

@@ -10,7 +10,7 @@ let store = {
         createGrid: {
             displayName: 'Планировка',
             models: {
-                createGrid: { label: 'Создать сетку' },
+                createGrid: { label: 'Создать планировку' },
             },
         },
         furniture: {
